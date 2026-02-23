@@ -1,12 +1,55 @@
 body {
-    background-color: #1b2838; /*  AZUL STEAM ?? */
+    margin: 0;
+    padding: 0;
+    font-family: 'Exo 2', sans-serif;
     color: white;
-    font-family: 'exo 2' , sans-serif;     /* 'Stratum2'== exo2 ? FONTE DO CS? */
     text-align: center;
     padding-top: 50px;
+
+    /*FUNDO png chat: */
+    
+    /* 1. O caminho da imagem (certifique-se que o nome do arquivo esteja igual) */
+    background-image: url('assets/chatcs.png');
+
+    /* 2. Faz a imagem cobrir a tela toda sem distorcer */
+    background-size: cover;
+
+    /* 3. Centraliza a imagem para não cortar o meio */
+    background-position: center;
+
+    /* 4. Deixa a imagem parada enquanto o texto rola (efeito premium) */
+    background-attachment: fixed;
+
+    /* 5. Impede a imagem de ficar se repetindo */
+    background-repeat: no-repeat;
+
+    /* Mantendo suas configurações anteriores */
+    color: white;
+    font-family: 'Exo 2', sans-serif;
+    text-align: center;
+    margin: 0;
+    padding-top: 50px;
+
+    
+    background: linear-gradient(rgba(27, 40, 56, 0.85), rgba(27, 40, 56, 0.85)), 
+                url('assets/chatcs.png') no-repeat center center fixed;
+    
+    background-size: cover; /* para esticar */
+    min-height: 100vh;      /* ocupar tela */
 }
 
 .orange {
-    color: #ff9d00; /* TESTE LARANJA DO CS ?? */
+    color: #ff9d00; /* Laranja clássico do CS */
+    font-weight: bold;
 }
 
+/* manifesto */
+main {
+    max-width: 700px;
+    margin: 40px auto;
+    padding: 30px;
+    background: rgba(0, 0, 0, 0.5); /* fundo preto semi-transparente */
+    border-radius: 8px;
+    border-left: 5px solid #ff9d00;
+    backdrop-filter: blur(5px); /* efeito de vidro foscado */
+}
