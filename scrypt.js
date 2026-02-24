@@ -21,3 +21,8 @@ botoes.forEach(botao => {
         }
     });
 });
+
+document.getElementById('arquivo').addEventListener('change', function() {  //para aparecer o arquivo apra a pessoa
+    var fileName = this.files[0] ? this.files[0].name : "Nenhum arquivo selecionado";
+    document.getElementById('file-name').textContent = fileName;
+});

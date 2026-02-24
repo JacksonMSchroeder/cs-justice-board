@@ -87,6 +87,25 @@ body {
 
     
 }
+/* para fake report */
+.antifake-body h3 {
+    color: #ffffff;
+    font-size: 1rem;
+    margin-bottom: 10px;
+    border-left: 3px solid #ff9d00; /* Um detalhe laranja para guiar o olhar */
+    padding-left: 10px;
+}
+
+/* parágrafo laranja  */
+.antifake-body .orange {
+    margin-top: 15px;
+    padding: 10px;
+    background: rgba(255, 157, 0, 0.1); /* Um fundo bem sutil para destacar o aviso final */
+    border-radius: 4px;
+    display: inline-block;
+}
+
+
 /* para o fim da pag lei */
 .reflexao {  
     max-width: 800px;        
@@ -266,6 +285,37 @@ body {
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(255, 157, 0, 0.3);
 }
+.input-group {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    color: #ff9d00;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+textarea {
+    width: 100%;
+    min-height: 120px; /* para altura */
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid #333;
+    color: white;
+    padding: 12px;
+    border-radius: 4px;
+    font-family: 'Exo 2', sans-serif;
+    resize: vertical; /* para aumentar tamanho*/
+}
+
+textarea:focus {
+    border-color: #ff9d00;
+    outline: none;
+}
+
 /* efeito para o btn do submite report no mutal */
 @keyframes glow-pulse {
     0% { box-shadow: 0 0 5px rgba(255, 157, 0, 0.4); }
