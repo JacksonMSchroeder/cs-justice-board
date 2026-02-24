@@ -7,10 +7,64 @@ body {
     padding-top: 50px;
     min-height: 100vh;
     
-    /* Camada de cor + Imagem de fundo */
+    /*  cor + imagem de fundo */
     background: linear-gradient(rgba(27, 40, 56, 0.85), rgba(27, 40, 56, 0.85)), 
                 url('assets/chatcs.png') no-repeat center center fixed;
     background-size: cover;
+}
+.navbar {
+    display: flex;
+    justify-content: space-between; /* PARA COLOCAR O LOGIN NO CANTO*/
+    align-items: center;
+    background: rgba(10, 15, 25, 0.95); /* AZUL QUASE PRETO */
+    padding: 0 40px;
+    height: 60px;
+    border-bottom: 2px solid #ff9d00;
+    position: fixed; /* FICA FIXA  */
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+}
+
+.nav-links {
+    display: flex;
+    gap: 40px; /* ESPAÇAMENTO BOTÕES */
+}
+
+.nav-item {
+    color: white;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: color 0.2s;
+}
+
+.nav-item:hover {
+    color: #ff9d00;
+}
+
+.nav-auth .login-btn {
+    background: #ff9d00;
+    color: black;
+    padding: 8px 20px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.8rem;
+    border-radius: 3px;
+    transition: background 0.2s;
+}
+
+.nav-auth .login-btn:hover {
+    background: #e68a00;
+}
+
+/* o conteúdo do body precisa descer */
+body {
+    padding-top: 110px; /* aumentar  */
 }
 
 .orange {
@@ -18,7 +72,7 @@ body {
     font-weight: bold;
 }
 
-/* Manifesto */
+/* meanifesto */
 main {
     max-width: 700px;
     margin: 40px auto;
