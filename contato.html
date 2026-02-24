@@ -56,21 +56,17 @@
     <input type="text" placeholder="Seu Nick ou E-mail" required>
     <input type="text" placeholder="SteamID64 do Infrator" required>
     
-    <div class="upload-area">
-        <label for="arquivo" class="label-upload">
-            <span class="icon">📁</span> Para subir a prova do crime!
-        </label>
-        <input type="file" id="arquivo" accept="image/*,video/*" style="display: none;">
-        <span id="nome-arquivo" style="font-size: 0.7rem; color: #888; display: block; margin-top: 5px;">Nenhum arquivo selecionado</span>
-    </div>
-
-    <textarea placeholder="Descreva o ocorrido (ou cole links extras aqui)"></textarea>
-    <button type="submit" class="ver-todos">ENVIAR EVIDÊNCIA</button>
-</form>
+    <div class="file-upload-wrapper">
+    <label for="arquivo" class="btn-arquivo">
+        <span class="icon">📁</span> ANEXAR PRINT OU VÍDEO
+    </label>
+    <input type="file" id="arquivo" name="arquivo" hidden>
+    <span id="file-name">Nenhum arquivo selecionado</span>
+</div>
 
 <script>
         const fileInput = document.getElementById('arquivo');
-        const fileName = document.getElementById('nome-arquivo');
+        const fileName = document.getElementById('file-name');
 
         fileInput.addEventListener('change', function() {
             if (this.files && this.files.length > 0) {

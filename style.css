@@ -113,26 +113,40 @@ body {
     border: none;
 }
 /* btn-arquivo */
-.btn-arquivo {
-    margin-bottom: 10px;
-    text-align: center;
+/* Container do upload */
+.file-upload-wrapper {
+    margin: 20px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
 }
 
+/* O Botão Customizado */
 .btn-arquivo {
-    display: block;
-    background: rgba(255, 157, 0, 0.05); /* Laranja bem sutil no fundo */
-    border: 1px dashed #ff9d00; /* Tracejado indica que pode soltar arquivo */
+    background-color: transparent;
+    border: 2px dashed #ff9d00; /* Borda tracejada dá ideia de "solte o arquivo aqui" */
     color: #ff9d00;
-    padding: 12px;
+    padding: 15px 30px;
+    border-radius: 4px;
     cursor: pointer;
     font-weight: bold;
-    font-size: 0.8rem;
-    transition: all 0.2s ease-in-out;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    display: inline-block;
 }
 
-.label-upload:hover {
-    background: #ff9d00;
-    color: black;
+.btn-arquivo {
+    background-color: rgba(255, 157, 0, 0.1);
+    border-style: solid; /* A borda fica sólida no hover */
+    transform: scale(1.02);
+}
+
+/* Texto que mostra o nome do arquivo */
+#file-name {
+    font-size: 0.8rem;
+    color: #888;
+    font-style: italic;
 }
 
 .canais-oficiais, .envio-mural {
