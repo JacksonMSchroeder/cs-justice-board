@@ -7,9 +7,10 @@ body {
     font-family: 'Exo 2', sans-serif;
     color: white;
     text-align: center;
+
     min-height: 100vh;
     
-    /* Cor + Imagem de fundo fixa para todas as páginas */
+    /* Cor + Imagem de fundo fixa para todas as pag */
     background: linear-gradient(rgba(27, 40, 56, 0.9), rgba(27, 40, 56, 0.9)), 
                 url('assets/chatcs.png') no-repeat center center fixed;
     background-size: cover;
@@ -199,13 +200,69 @@ body {
 .mural-destaque {
     margin: 50px auto;
     max-width: 1000px;
+
+}
+
+/* Container das ações no Mural */
+.mural-actions {
+    display: flex;
+    max-width: 800px;
+    margin: 20px auto 30px auto;
+    display: flex;
+    justify-content: center; /* alinhar */
+}
+
+/* customização btn reporta */
+.btn-reportar {
+    animation: glow-pulse 2s infinite; /* efeito teste */
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: #ff9d00;
+    color: black;
+    text-decoration: none;
+    font-weight: bold;
+    padding: 12px 25px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 157, 0, 0.3);
+}
+/* efeito para o btn do submite report no mutal */
+@keyframes glow-pulse {
+    0% { box-shadow: 0 0 5px rgba(255, 157, 0, 0.4); }
+    50% { box-shadow: 0 0 20px rgba(255, 157, 0, 0.8); }
+    100% { box-shadow: 0 0 5px rgba(255, 157, 0, 0.4); }
+}
+
+.btn-reportar:hover {
+    background: #e68a00;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 157, 0, 0.5);
+}
+
+.btn-reportar .icon {
+    font-size: 1.1rem;
+}
+
+/* mobile */
+@media (max-width: 768px) {
+    .mural-actions {
+        text-align: center;
+    }
+    .btn-reportar {
+        width: 100%; /* facilitar o touchscreen */
+        justify-content: center;
+    }
 }
 
 .cards-container {
     display: flex;
     gap: 20px;
     justify-content: center;
-    flex-wrap: wrap; /* Ajusta para MOBILE */
+    flex-wrap: wrap; /* ajusta para MOBILE */
     margin-top: 20px;
 }
 
@@ -285,4 +342,45 @@ footer {
     margin-top: 15px !important;
     text-transform: uppercase;
     letter-spacing: 1px;
+}
+
+
+@media (max-width: 768px) {
+    body {
+        padding-top: 80px; 
+        font-size: 14px;   
+    }
+
+    .navbar {
+        padding: 0 15px;   
+    }
+
+    .nav-links {
+        gap: 10px;         
+    }
+
+    .nav-item {
+        font-size: 0.7rem; 
+    }
+
+    .content-box, main {
+        width: 90%;        
+        margin: 20px auto;
+        padding: 15px;
+    }
+
+    
+    .cards-container {
+        flex-direction: column; 
+        align-items: center;    
+    }
+
+    .card-log {
+        width: 90%;             
+        min-height: auto;
+    }
+
+    h1 {
+        font-size: 1.5rem;     
+    }
 }
