@@ -38,7 +38,7 @@
 
         <div class="canal-card">
             <h3>SaferNet Brasil</h3>
-            <p>Referência nacional em denúncias de crimes de ódio na internet. <br> <a href="https://denuncia.safernet.org.br/" target="_blank">denuncia.safernet.org.br</a></p>
+            <p>Referência nacional em denúncias de crimes de ódio na internet. <br> <a href="https://new.safernet.org.br/denuncie" target="_blank">denuncia.safernet.org.br</a></p>
             </div>
 
         <div class="canal-card">
@@ -49,16 +49,43 @@
 
         <section class="envio-mural">
             <h2 class="orange">ENVIE PARA O MURAL</h2>
-            <p>Ajude-nos a documentar a toxicidade. Envie provas de racismo no CS2:</p>
+            <p>Ajude-nos a documentar a toxicidade. Envie provas de racismo no CS2 <br>
+                Exponha o usúario infrator:</p>
             
         <form class="form-contato">
-            <input type="text" placeholder="Seu Nick ou E-mail">
-            <input type="text" placeholder="SteamID64 do Infrator">
-            <textarea placeholder="Descreva o ocorrido (ou anexe o link da print/vídeo)"></textarea>
-            <button type="submit" class="ver-todos">ENVIAR EVIDÊNCIA</button>
-            </form>
-        </section>
-    </main>
+    <input type="text" placeholder="Seu Nick ou E-mail" required>
+    <input type="text" placeholder="SteamID64 do Infrator" required>
+    
+    <div class="upload-area">
+        <label for="arquivo" class="label-upload">
+            <span class="icon">📁</span> Para subir a prova do crime!
+        </label>
+        <input type="file" id="arquivo" accept="image/*,video/*" style="display: none;">
+        <span id="nome-arquivo" style="font-size: 0.7rem; color: #888; display: block; margin-top: 5px;">Nenhum arquivo selecionado</span>
+    </div>
+
+    <textarea placeholder="Descreva o ocorrido (ou cole links extras aqui)"></textarea>
+    <button type="submit" class="ver-todos">ENVIAR EVIDÊNCIA</button>
+</form>
+
+<script>
+        const fileInput = document.getElementById('arquivo');
+        const fileName = document.getElementById('nome-arquivo');
+
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files.length > 0) {
+                // confirma
+                fileName.textContent = "Arquivo selecionado: " + this.files[0].name;
+                fileName.style.color = "#ff9d00";
+            } else {
+                // cancela
+                fileName.textContent = "Nenhum arquivo selecionado";
+                fileName.style.color = "#888";
+            }
+        });
+    </script>
+</body>
+</html>
  
     <footer>
     <p>&copy; 2026 JACKSON SCHROEDER Projeto Independente de Combate à Toxicidade.</p>

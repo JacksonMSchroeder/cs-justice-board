@@ -112,6 +112,28 @@ body {
     background: transparent; /* Remove o fundo padrão para usar os cards */
     border: none;
 }
+/* btn-arquivo */
+.btn-arquivo {
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.btn-arquivo {
+    display: block;
+    background: rgba(255, 157, 0, 0.05); /* Laranja bem sutil no fundo */
+    border: 1px dashed #ff9d00; /* Tracejado indica que pode soltar arquivo */
+    color: #ff9d00;
+    padding: 12px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.8rem;
+    transition: all 0.2s ease-in-out;
+}
+
+.label-upload:hover {
+    background: #ff9d00;
+    color: black;
+}
 
 .canais-oficiais, .envio-mural {
     flex: 1;
