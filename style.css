@@ -1,26 +1,38 @@
+/* 
+   1. CONFIGURAÇÕES GERAIS (O CORPO DO SITE)
+    */
 body {
     margin: 0;
     padding: 0;
     font-family: 'Exo 2', sans-serif;
     color: white;
     text-align: center;
-    padding-top: 50px;
     min-height: 100vh;
     
-    /*  cor + imagem de fundo */
-    background: linear-gradient(rgba(27, 40, 56, 0.85), rgba(27, 40, 56, 0.85)), 
+    /* Cor + Imagem de fundo fixa para todas as páginas */
+    background: linear-gradient(rgba(27, 40, 56, 0.9), rgba(27, 40, 56, 0.9)), 
                 url('assets/chatcs.png') no-repeat center center fixed;
     background-size: cover;
+    padding-top: 100px; /* Espaço para a Navbar fixa */
 }
+
+.orange {
+    color: #ff9d00;
+    font-weight: bold;
+}
+
+/* 
+   2. NAVBAR (MENU SUPERIOR)
+    */
 .navbar {
     display: flex;
-    justify-content: space-between; /* PARA COLOCAR O LOGIN NO CANTO*/
+    justify-content: space-between;
     align-items: center;
-    background: rgba(10, 15, 25, 0.95); /* AZUL QUASE PRETO */
+    background: rgba(10, 15, 25, 0.95);
     padding: 0 40px;
     height: 60px;
     border-bottom: 2px solid #ff9d00;
-    position: fixed; /* FICA FIXA  */
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;
@@ -30,7 +42,7 @@ body {
 
 .nav-links {
     display: flex;
-    gap: 40px; /* ESPAÇAMENTO BOTÕES */
+    gap: 30px;
 }
 
 .nav-item {
@@ -58,47 +70,116 @@ body {
     transition: background 0.2s;
 }
 
-.nav-auth .login-btn:hover {
-    background: #e68a00;
-}
-
-/* o conteúdo do body precisa descer */
-body {
-    padding-top: 110px; /* aumentar  */
-}
-
-.orange {
-    color: #ff9d00;
-    font-weight: bold;
-}
-
-/* meanifesto */
-main {
-    max-width: 700px;
+/* 
+   3. CAIXA DE CONTEÚDO (MANIFESTO / LEI / CONTATO)
+    */
+.content-box, main {
+    max-width: 800px;
     margin: 40px auto;
     padding: 30px;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.6);
     border-radius: 8px;
     border-left: 5px solid #ff9d00;
     backdrop-filter: blur(5px);
+    text-align: left;
+    animation: fadeIn 0.5s ease;
+
+    
+}
+/* para o fim da pag lei */
+.reflexao {  
+    max-width: 800px;        
+    margin: 40px auto;          
+    padding: 30px;
+    border-top: 1px solid rgba(255, 157, 0, 0.3); /* Uma linha laranja bem fininha */
+    font-style: italic; 
+    color: #bbb; 
 }
 
-/* murak da vergonha */
-mural-unico {
-    max-width: 800px;
-    margin: 50px auto;
-    padding: 20px;
+.reflexao h3 {
+    font-style: normal;
+    letter-spacing: 2px;
 }
 
+/* CONTATO */
+/* Layout em duas colunas para a página de contato */
+.grid-contato {
+    display: flex;
+    gap: 40px;
+    max-width: 1000px;
+    margin: 40px auto;
+    background: transparent; /* Remove o fundo padrão para usar os cards */
+    border: none;
+}
+
+.canais-oficiais, .envio-mural {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 30px;
+    border-radius: 8px;
+    border-left: 4px solid #ff9d00;
+    text-align: left;
+}
+
+.canal-card {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+}
+
+.canal-card h3 {
+    font-size: 1rem;
+    margin-top: 0;
+    color: #ff9d00;
+}
+
+.canal-card a {
+    color: #4da6ff;
+    text-decoration: none;
+}
+
+/* Estilo do Formulário */
+.form-contato {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-contato input, .form-contato textarea {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid #444;
+    padding: 12px;
+    color: white;
+    font-family: inherit;
+}
+
+.form-contato textarea {
+    height: 100px;
+    resize: none;
+}
+
+.form-contato button {
+    cursor: pointer;
+    background: none;
+    border: 1px solid #ff9d00;
+    color: #ff9d00;
+    font-weight: bold;
+    padding: 15px;
+}
+
+/* 
+   4. MURAL COMPLETO (PÁGINA mural.html - LISTA)
+    */
 .console-box {
-    background: rgba(0, 0, 0, 0.8);      /* Fundo  */
+    background: rgba(0, 0, 0, 0.8);
     border: 1px solid #333;
-    border-top: 3px solid #ff9d00;      /* laranja em cima */
+    border-top: 3px solid #ff9d00;
     padding: 20px;
     text-align: left;
-    font-family: 'Courier New', monospace; /* outra fonte  */
-    max-height: 400px;                  /* fixa a altura */
-    overflow-y: auto;                   
+    font-family: 'Courier New', monospace;
+    max-height: 500px;
+    overflow-y: auto;
     box-shadow: inset 0 0 10px #000;
 }
 
@@ -106,28 +187,102 @@ mural-unico {
     margin-bottom: 10px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     padding-bottom: 5px;
-    font-size: 0.9rem;
 }
 
-.log-date {
-    color: #888;
-    margin-right: 10px;
+.log-date { color: #888; margin-right: 10px; }
+.log-user { color: #ff9d00; font-weight: bold; }
+.log-msg { color: #e0e0e0; }
+
+/* 
+   5. MURAL DESTAQUE (PÁGINA index - 2 QUADRADOS)
+    */
+.mural-destaque {
+    margin: 50px auto;
+    max-width: 1000px;
 }
 
-.log-user {
+.cards-container {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap; /* Ajusta para MOBILE */
+    margin-top: 20px;
+}
+
+.card-log {
+    background: rgba(10, 15, 25, 0.9);
+    border: 1px solid #333;
+    border-top: 4px solid #ff9d00;
+    padding: 20px;
+    width: 300px;
+    min-height: 150px;
+    text-align: left;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card-log:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 20px rgba(255, 157, 0, 0.1);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    margin-bottom: 15px;
+    color: #777;
+    border-bottom: 1px solid #222;
+    padding-bottom: 5px;
+}
+
+.ver-todos {
+    display: inline-block;
+    margin-top: 25px;
     color: #ff9d00;
+    text-decoration: none;
     font-weight: bold;
-    margin-right: 5px;
+    border: 1px solid #ff9d00;
+    padding: 10px 20px;
+    transition: 0.3s;
 }
 
-.log-msg {
-    color: #e0e0e0;
-}
-
-/* para o scroll */
-.console-box::-webkit-scrollbar {
-    width: 8px;
-}
-.console-box::-webkit-scrollbar-thumb {
+.ver-todos:hover {
     background: #ff9d00;
+    color: black;
+}
+
+/* 
+   6. ANIMAÇÕES
+    */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Scrollbar do Mural */
+.console-box::-webkit-scrollbar { width: 8px; }
+.console-box::-webkit-scrollbar-thumb { background: #ff9d00; }
+
+
+/* NOTA DE RODAPÉ, ALL PAGES */
+footer {
+    margin-top: 80px; /* Dá um espaço generoso do conteúdo */
+    padding: 40px 20px;
+    background: rgba(10, 15, 25, 0.98);
+    border-top: 2px solid #333;
+    color: #888;
+    font-size: 0.85rem;
+    text-align: center;
+}
+
+.footer-content p {
+    margin: 5px 0;
+}
+
+.disclaimer {
+    font-size: 0.7rem;
+    color: #555;
+    margin-top: 15px !important;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
