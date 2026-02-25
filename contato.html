@@ -3,100 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contato e Denúncia | CS: Justiça 🛡️</title>
+    <title>Contato e Denúncia</title>
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
- <nav class="navbar">
-    <div class="nav-links">
-     <a href="index.html" class="nav-item">Manifesto</a>
-     <a href="mural.html" class="nav-item">Mural</a>
-     <a href="lei.html" class="nav-item">Lei</a>
-     <a href="contato.html" class="nav-item">Contato</a>
+    <nav class="navbar">
+        <div class="nav-links">
+            <a href="index.html" class="nav-item">Manifesto</a>
+            <a href="mural.html" class="nav-item">Mural</a>
+            <a href="lei.html" class="nav-item">Lei</a>
+            <a href="contato.html" class="nav-item">Contato</a>
         </div>
-    <div class="nav-auth">
-        <a href="#" class="login-btn">LOGIN STEAM</a>
+        <div class="nav-auth">
+            <a href="#" class="login-btn">LOGIN STEAM</a>
         </div>
     </nav>
 
     <header class="main-header">
-    <h1>VIROU ALVO? <span class="orange">NÃO SE CALE.</span></h1>
-    <p>Saiba como denunciar e onde buscar apoio jurídico.</p>
+        <h1>VIROU ALVO? <span class="orange">NÃO SE CALE.</span></h1>
+        <p>Saiba como denunciar e onde buscar apoio jurídico.</p>
     </header>
 
     <main class="grid-contato">
-    <section class="canais-oficiais">
-        <h2 class="orange">CANAIS OFICIAIS</h2>
-        <p>Para punição legal e criminal, recorra a estes órgãos:</p>
+        <section class="canais-oficiais">
+            <h2 class="orange">CANAIS OFICIAIS</h2>
+            <p>Para punição legal e criminal, recorra a estes órgãos:</p>
             
-        <div class="canal-card">
-        <h3>Delegacia de Crimes Raciais (DECRADI)</h3>
-        <p>Busque a delegacia especializada do seu estado. Se não houver, utilize a <strong>Delegacia Eletrônica</strong> para registrar o Boletim de Ocorrência online.</p>
-        </div>
-
-        <div class="canal-card">
-            <h3>SaferNet Brasil</h3>
-            <p>Referência nacional em denúncias de crimes de ódio na internet. <br> <a href="https://new.safernet.org.br/denuncie" target="_blank">denuncia.safernet.org.br</a></p>
+            <div class="canal-card">
+                <h3>Delegacia de Crimes Raciais (DECRADI)</h3>
+                <p>Busque a delegacia especializada do seu estado. Se não houver, utilize a <strong>Delegacia Eletrônica</strong> para registrar o B.O. online.</p>
             </div>
 
-        <div class="canal-card">
-            <h3>Ministério Público Federal</h3>
-            <p>Você pode formalizar uma denúncia diretamente ao MPF através da <strong>Sala de Atendimento ao Cidadão</strong>.</p>
+            <div class="canal-card">
+                <h3>SaferNet Brasil</h3>
+                <p>Referência nacional em denúncias de crimes de ódio na internet. <br> 
+                <a href="https://new.safernet.org.br/denuncie" target="_blank">denuncia.safernet.org.br</a></p>
+            </div>
+
+            <div class="canal-card">
+                <h3>Ministério Público Federal</h3>
+                <p>Você pode formalizar uma denúncia diretamente ao MPF através da <strong>Sala de Atendimento ao Cidadão</strong>.</p>
             </div>
         </section>
 
         <section class="envio-mural">
             <h2 class="orange">ENVIE PARA O MURAL</h2>
-            <p>Ajude-nos a documentar a toxicidade. Envie provas de racismo no CS2 <br>
-                Exponha o usúario infrator:</p>
+            <p>Ajude-nos a documentar a toxicidade. Envie provas de racismo no CS2.</p>
             
-        <form class="form-contato">
-    <input type="text" placeholder="Seu Nick ou E-mail" required>
-    <input type="text" placeholder="SteamID do Infrator" required>
-    
-    <div class="file-upload-wrapper">
-    <label for="arquivo" class="btn-arquivo">
-        <span class="icon">📁</span> ANEXAR PRINT OU VÍDEO
-    </label>
-    <input type="file" id="arquivo" name="arquivo" hidden>
-    <span id="file-name">Nenhum arquivo selecionado</span>
-    <form class="contato-form">
-    <div class="file-upload-wrapper">    
-    </div>
+            <form class="form-contato">
+                <input type="text" placeholder="Seu Nick ou E-mail" required>
+                <input type="text" placeholder="SteamID do Infrator" required>
+                
+                <div class="input-group">
+                    <label for="mensagem">DESCRIÇÃO DOS FATOS</label>
+                    <textarea id="mensagem" name="mensagem" placeholder="Descreva o ocorrido com detalhes..." required></textarea>
+                </div>
 
-    <div class="input-group">
-        <label for="mensagem">DESCRIÇÃO DOS FATOS</label>
-        <textarea id="mensagem" name="mensagem" placeholder="Descreva o ocorrido com detalhes..." required></textarea>
-    </div>
+                <div class="file-upload-wrapper">
+                    <label for="arquivo" class="btn-arquivo">
+                        <span class="icon">📁</span> ANEXAR PROVAS
+                    </label>
+                    <input type="file" id="arquivo" name="arquivo" hidden multiple>
+                    <span id="file-name">Nenhum arquivo selecionado</span>
+                </div>
 
-    <button type="submit" class="send-btn">ENVIAR DENÚNCIA</button>
-</form>
-</div>
+                <button type="submit" class="send-btn">ENVIAR DENÚNCIA</button>
+            </form>
+        </section>
+    </main>
 
-<script>
-        const fileInput = document.getElementById('arquivo');
-        const fileName = document.getElementById('file-name');
+    <footer>
+        <p>&copy; 2026 JACKSON SCHROEDER Projeto Independente de Combate à Toxicidade.</p>
+        <p>Este site não possui vínculo com a Valve Corporation ou Steam.</p>
+    </footer>
 
-        fileInput.addEventListener('change', function() {
+
+
+    <!-- <script>
+    const input = document.getElementById('arquivo');
+    const txt = document.getElementById('file-name');
+
+    input.onchange = () => {
+        txt.innerText = input.files[0] ? `Arquivo: ${input.files[0].name}` : "Nenhum selecionado";
+        txt.style.color = input.files[0] ? "#00ff00" : "#888"; 
+    };
+</script> DESCARTADO ? MELHORADO?  -->
+
+
+
+    <script>
+        const inputArquivo = document.getElementById('arquivo');
+        const labelTexto = document.getElementById('file-name');
+
+        
+
+        inputArquivo.addEventListener('change', function() {
             if (this.files && this.files.length > 0) {
-                // confirma
-                fileName.textContent = "Arquivo selecionado: " + this.files[0].name;
-                fileName.style.color = "#ff9d00";
+                let nomes = [];
+                for (let i = 0; i < this.files.length; i++) {
+                    nomes.push(this.files[i].name);
+                }
+
+                if (nomes.length === 1) {
+                    labelTexto.innerText = "Selecionado: " + nomes[0];
+                } else {
+                    labelTexto.innerText = nomes.length + " arquivos selecionados";
+                }
+                labelTexto.style.color = "#00ff00"; 
             } else {
-                // cancela
-                fileName.textContent = "Nenhum arquivo selecionado";
-                fileName.style.color = "#888";
+                labelTexto.innerText = "Nenhum arquivo selecionado";
+                labelTexto.style.color = "#888"; 
             }
         });
     </script>
 </body>
 </html>
- 
-    <footer>
-    <p>&copy; 2026 JACKSON SCHROEDER Projeto Independente de Combate à Toxicidade.</p>
-    <p>Este site não possui vínculo com a Valve Corporation ou Steam.</p>
-</footer>
-</body>
-</html>
+
+

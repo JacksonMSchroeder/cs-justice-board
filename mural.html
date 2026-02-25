@@ -18,6 +18,7 @@
         <div class="nav-auth"><a href="#" class="login-btn">LOGIN STEAM</a></div>
     </nav>
 
+    <!-- report -->
     <div class="mural-actions">
     <a href="contato.html" class="btn-reportar">
    <span class="icon"> </span> new repoert
@@ -26,25 +27,28 @@
 
 <div class="console-box">
     </div>
-
+<!-- mural -->
     <header class="main-header">
         <h1>MURAL DOS <span class="orange">CRIMINOSOS</span></h1>
     </header>
 
-    <main class="content-box">
-        <div class="console-box">
-            <div class="log-entry">
-                <span class="log-date">[24/02/2026]</span> 
-                <span class="log-user">USER_EXEMPLO:</span> 
-                <span class="log-msg">Injúria racial detectada no servidor.</span>
-            </div>
-            </div>
-    </main>
+    <!-- para ir inf para o index -->
+   <main class="content-box">
+    <div id="mural-logs" class="console-box"></div>
+
+    <div class="paginacao">
+        <button id="prevBtn" class="pag-btn">← BACK</button>
+        <span id="pag-number">PÁGINA 1</span>
+        <button id="nextBtn" class="pag-btn">NEXT →</button>
+    </div>
+</main>
 
 
    <footer>
 <p>&copy; 2026 JACKSON SCHROEDER Projeto Independente de Combate à Toxicidade.</p>
     <p>Este site não possui vínculo com a Valve Corporation ou Steam.</p>
 </footer> 
+
+<script src="mural.js"></script>
 </body>
 </html>
