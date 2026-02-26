@@ -50,11 +50,11 @@
 
         <section class="envio-mural">
             <h2 class="orange">ENVIE PARA O MURAL</h2>
-            <p>Ajude-nos a documentar a toxicidade. Envie provas de racismo no CS2.</p>
+            <p>Ajude-nos a documentar a toxicidade. Envie provas de racismo no CS2. É Anônimo e seguro !  </p>
             
-            <form class="form-contato">
-                <input type="text" placeholder="Seu Nick ou E-mail" required>
-                <input type="text" placeholder="SteamID do Infrator" required>
+            <form id="reportForm" class="form-contato">
+                <input type="text" id="reporter" placeholder="Seu Nick ou E-mail" required>
+                <input type="text" id="offender_steam_id" placeholder="SteamID do Infrator" required>
                 
                 <div class="input-group">
                     <label for="mensagem">DESCRIÇÃO DOS FATOS</label>
@@ -75,50 +75,77 @@
     </main>
 
     <footer>
-        <p>&copy; 2026 JACKSON SCHROEDER Projeto Independente de Combate à Toxicidade.</p>
+        <p>&copy; 2026 Projeto Independente de Combate à Toxicidade.</p>
         <p>Este site não possui vínculo com a Valve Corporation ou Steam.</p>
     </footer>
 
-
-
-    <!-- <script>
-    const input = document.getElementById('arquivo');
-    const txt = document.getElementById('file-name');
-
-    input.onchange = () => {
-        txt.innerText = input.files[0] ? `Arquivo: ${input.files[0].name}` : "Nenhum selecionado";
-        txt.style.color = input.files[0] ? "#00ff00" : "#888"; 
-    };
-</script> DESCARTADO ? MELHORADO?  -->
-
-
-
     <script>
+        const reportForm = document.getElementById('reportForm');
         const inputArquivo = document.getElementById('arquivo');
         const labelTexto = document.getElementById('file-name');
 
-        
+        // PARA TRANSFORMAR A IMAGEM                             !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        const toBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
 
+        //  
         inputArquivo.addEventListener('change', function() {
             if (this.files && this.files.length > 0) {
-                let nomes = [];
-                for (let i = 0; i < this.files.length; i++) {
-                    nomes.push(this.files[i].name);
-                }
-
-                if (nomes.length === 1) {
-                    labelTexto.innerText = "Selecionado: " + nomes[0];
-                } else {
-                    labelTexto.innerText = nomes.length + " arquivos selecionados";
-                }
+                let nomes = Array.from(this.files).map(f => f.name);
+                labelTexto.innerText = nomes.length === 1 ? "Selecionado: " + nomes[0] : nomes.length + " arquivos selecionados";
                 labelTexto.style.color = "#00ff00"; 
             } else {
                 labelTexto.innerText = "Nenhum arquivo selecionado";
                 labelTexto.style.color = "#888"; 
             }
         });
+
+        // LOG de envio
+        reportForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            let imagemBase64 = null;
+            
+            // se tiver arquivo converte
+            if (inputArquivo.files.length > 0) {
+                try {
+                    imagemBase64 = await toBase64(inputArquivo.files[0]);
+                } catch (err) {
+                    console.error("Erro na conversão da imagem:", err);
+                }
+            }
+
+            const formData = {
+                reporter: document.getElementById('reporter').value,
+                offender_steam_id: document.getElementById('offender_steam_id').value,
+                description: document.getElementById('mensagem').value,
+                image: imagemBase64 // para a coluna 'image' do Supabase
+            };
+
+            try {
+                const response = await fetch('http://localhost:5000/reports', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    alert('✅ Denúncia e imagem enviadas ao Mural com sucesso!');
+                    reportForm.reset();
+                    labelTexto.innerText = "Nenhum arquivo selecionado";
+                    labelTexto.style.color = "#888";
+                } else {
+                    alert('❌ Erro ao enviar denúncia. Verifique se a coluna "image" existe no Supabase.');
+                }
+            } catch (error) {
+                console.error('Erro de conexão:', error);
+                alert('🚨 Servidor offline! Rode "node server.js" no seu VS Code.');
+            }
+        });
     </script>
 </body>
 </html>
-
-

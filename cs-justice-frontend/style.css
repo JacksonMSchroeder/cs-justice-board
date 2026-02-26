@@ -486,9 +486,11 @@ footer {
     }
 
     .content-box, main {
+        
+        text-align: justify;
         width: 90%;        
         margin: 20px auto;
-        padding: 15px;
+        padding: 40px;
     }
 
     
@@ -504,5 +506,79 @@ footer {
 
     h1 {
         font-size: 1.5rem;     
+    }
+}
+/* PARA OS BLOCO DE DENUNCIA SE MANTER NO LAYOUT DA PAG */
+.log-entry {
+    padding: 15px;
+    margin-bottom: 15px;
+    background: rgba(20, 20, 20, 0.8); 
+    border-left: 4px solid #ff4500;    
+    font-family: 'Courier New', monospace;
+    text-align: left;
+}
+
+.log-row {
+    display: flex;
+    justify-content: flex-start;
+    gap: 20px;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #333;
+    padding-bottom: 5px;
+}
+
+.log-time { color: #888; }
+.log-id { color: #ff4500; font-weight: bold; }
+.log-status { color: #00ff00; }
+
+.log-desc {
+    color: #eee;
+    margin-top: 10px;
+    font-size: 1rem;
+}
+/* 7. ESTILO DE EVIDÊNCIA 
+    */
+.log-image {
+    margin-top: 15px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid #333;
+    padding: 10px;
+    border-radius: 4px;
+    position: relative;
+}
+
+/*  acima da imagem */
+.log-image::before {
+    content: "> EVIDENCIA_ANEXADA.RAW";
+    display: block;
+    color: #ff4500; /*  laranja de erro/alerta */
+    font-size: 0.7rem;
+    margin-bottom: 8px;
+    letter-spacing: 2px;
+    font-weight: bold;
+}
+
+.log-image img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 2px;
+    /*monitor */
+    filter: contrast(1.1) brightness(0.9) grayscale(20%);
+    transition: all 0.3s ease;
+    cursor: zoom-in;
+}
+
+/*  passar o mouse na prova */
+.log-image img:hover {
+    filter: contrast(1.2) brightness(1.1) grayscale(0%);
+    box-shadow: 0 0 15px rgba(255, 69, 0, 0.3);
+}
+
+/* mobile */
+@media (max-width: 768px) {
+    .log-image {
+        padding: 5px;
     }
 }

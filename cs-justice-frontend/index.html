@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS: Justiça </title>
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<!-- USAR EM TODAS AS PAG ============================================================== -->
+<body>
+    <nav class="navbar">
+        <div class="nav-links">
+            <a href="index.html" class="nav-item">Manifesto</a>
+            <a href="mural.html" class="nav-item">Mural</a>
+            <a href="lei.html" class="nav-item">Lei</a>
+            <a href="contato.html" class="nav-item">Contato</a>
+        </div>
+        <div class="nav-auth"><a href="#" class="login-btn">LOGIN STEAM</a></div>
+    </nav>
+    <!-- USAR EM TODAS AS PAG ============================================================== -->
+
+
+    <header class="main-header">
+        <h1>CS2:<span class="orange"> Racismo não é TrashTalk, é CRIME!</span></h1>
+    </header>
+
+    <section class="mural-destaque">
+        <h2 class="orange">ÚLTIMOS REGISTROS</h2>
+        <div class="cards-container" id="recent-reports-container">
+            <p style="color: #888; padding: 20px;">Carregando registros recentes...</p>
+        </div>
+        <a href="mural.html" class="ver-todos">VER MURAL COMPLETO →</a>
+    </section>
+
+    <main class="content-box">
+        <h2>MANIFESTO</h2>
+        <p>No Counter-Strike, a competitividade faz parte da essência, mas o crime não. O racismo e o discurso de ódio não são aceitaveis.</p>
+        <p>São crimes previstos em lei, com penas reais que ultrapassam as fronteiras do digital.</p>
+    </main>
+
+    <main class="content-box">
+        <h2>Carta aberta a Valve</h2>
+        <p>O Palco de Milhões: <br>
+        O Counter-Strike é mais do que um jogo; é um fenômeno cultural que une milhões... <br>
+        (seu texto continua aqui...)
+        <br>
+        <strong>E é por amarmos este jogo que não aceitaremos que ele seja um refúgio para criminosos.</strong> </p>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Projeto Independente de Combate à Toxicidade.</p>
+        <p>Este site não possui vínculo com a Valve Corporation ou Steam.</p>
+    </footer>
+
+    <script>
+        async function loadRecentReports() {
+            const container = document.getElementById('recent-reports-container');
+            try {
+                const response = await fetch('http://localhost:5000/reports');
+                const reports = await response.json();
+
+                if (reports.length === 0) {
+                    container.innerHTML = '<p style="color: #888;">Nenhuma denúncia registrada ainda.</p>';
+                    return;
+                }
+
+  // lpmpa o container e pega apenas as 3 ultimas
+          container.innerHTML = '';
+          reports.slice(0, 3).forEach(report => {
+            const date = new Date(report.created_at).toLocaleDateString('pt-BR');
+             const card = document.createElement('div');
+             card.className = 'card-log';
+              card.innerHTML = `
+               <div class="card-header">
+                <span class="log-date">${date}</span>
+               <span class="status-badge">${report.status || 'LIVE'}</span>
+                  </div>
+                 <p class="log-user">Infrator: ${report.offender_steam_id}</p>
+               <p class="log-msg">"${report.description}"</p>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (error) {
+                console.error('Erro ao carregar:', error);
+                container.innerHTML = '<p style="color: #ff4444;">Erro ao conectar com o servidor.</p>';
+            }
+        }
+
+        //  função ao carregar a página
+        window.onload = loadRecentReports;
+    </script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> MURAL DA VERGONHA </title>
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-links">
+            <a href="index.html" class="nav-item">Manifesto</a>
+            <a href="mural.html" class="nav-item">Mural</a>
+            <a href="lei.html" class="nav-item">Lei</a>
+            <a href="contato.html" class="nav-item">Contato</a>
+        </div>
+        <div class="nav-auth"><a href="#" class="login-btn">LOGIN STEAM</a></div>
+    </nav>
+       <!-- report -->
+    <div class="mural-actions">
+        <a href="contato.html" class="btn-reportar">
+            <span class="icon"> </span> NEW REPORT
+        </a>
+    </div>
+
+    <header class="main-header">
+        <h1>MURAL DOS <span class="orange">CRIMINOSOS</span></h1>
+    </header>
+
+    <main class="content-box">
+        <div id="mural-logs" class="console-box">
+            <p class="orange" style="text-align: center;">CARREGANDO SISTEMA...</p>
+        </div>
+
+        <div class="paginacao">
+            <button id="prevBtn" class="pag-btn">← BACK</button>
+            <span id="pag-number">PÁGINA 1</span>
+            <button id="nextBtn" class="pag-btn">NEXT →</button>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Projeto Independente de Combate à Toxicidade.</p>
+        <p>Este site não possui vínculo com a Valve Corporation ou Steam.</p>
+    </footer> 
+
+    <script>
+    async function carregarMural() {
+        const container = document.getElementById('mural-logs');
+        
+     try {
+        const resposta = await fetch('http://localhost:5000/reports');
+        if (!resposta.ok) throw new Error('Erro na rede');
+            
+        const denuncias = await resposta.json();
+
+        if (!denuncias || denuncias.length === 0) {
+        container.innerHTML = '<p class="orange" style="text-align: center;">Nenhum registro encontrado no sistema.</p>';
+        return;
+            }
+
+        container.innerHTML = '';
+
+        denuncias.forEach(item => {
+        const dataFormatada = item.created_at 
+          ? new Date(item.created_at).toLocaleDateString('pt-BR') 
+          : 'DATA INDISPONÍVEL';
+                
+                const logEntry = document.createElement('div');
+                logEntry.className = 'log-entry'; 
+                
+  // HTML interno
+      logEntry.innerHTML = `
+         <div class="log-row" style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+         <span class="log-time" style="color: #888;">[${dataFormatada}]</span>
+         <span class="log-id" style="color: #ff8c00; font-weight: bold;">ID: ${item.offender_steam_id}</span>
+         <span class="log-status">[REPORTADO]</span>
+
+
+                    </div>
+
+                    <p class="log-desc" style="margin: 10px 0; color: #eee;">DETALHES: ${item.description}</p>
+                    
+    ${item.image ? `
+        <div class="log-image" style="margin-top: 15px; border: 1px solid #333; border-radius: 4px; overflow: hidden;">
+        <img src="${item.image}" alt="Prova do crime" style="width: 100%; display: block; filter: grayscale(20%) contrast(110%);">
+
+
+                        </div>
+                    ` : ''}
+
+     <hr style="border: 0.5px solid #333; margin: 15px 0;">
+                `;
+                container.appendChild(logEntry);
+            });
+
+    } catch (erro) {
+            console.error("Erro ao carregar mural:", erro);
+            container.innerHTML = '<p style="color: #ff4444; text-align: center;">ERRO DE CONEXÃO COM O TERMINAL CENTRAL.</p>';
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', carregarMural);
+    </script>
+</body>
+</html>
