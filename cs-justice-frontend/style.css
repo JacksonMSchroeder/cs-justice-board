@@ -582,3 +582,29 @@ footer {
         padding: 5px;
     }
 }
+/* para efeito quando tiver carregando */
+.loader {
+    border: 4px solid #1a1a1a;
+    border-top: 4px solid #ff8c00; /* Laranja do seu ID */
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+/*  animação de rotação */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* fade para os cards aparecerem suavemente */
+.log-entry {
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}

@@ -139,11 +139,11 @@
                     labelTexto.innerText = "Nenhum arquivo selecionado";
                     labelTexto.style.color = "#888";
                 } else {
-                    alert('❌ Erro ao enviar denúncia. Verifique se a coluna "image" existe no Supabase.');
+                    alert('❌ Erro ao enviar denúncia.');
                 }
             } catch (error) {
                 console.error('Erro de conexão:', error);
-                alert('🚨 Servidor offline! Rode "node server.js" no seu VS Code.');
+                alert('🚨 Servidor offline!.');
             }
         });
     </script>
