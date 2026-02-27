@@ -5,19 +5,19 @@ require('dotenv').config();
 
 const app = express();
 
-// Configurações essenciais
 app.use(cors());
 app.use(express.json());
 
-// Conexão com Supabase
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
-// ROTA PARA O MURAL (Puxar dados) - Removido o /api para combinar com seu HTML
+// ROTA PARA O MURAL PUXAR APENAS ACEITOS POR MIM,  EVITAR PINTO E TROLL NO MURAL DE PESSOAS QUE LOGO VOU PEDIR PARA TESTAR 
+// REMODELAR QUANDO COLOCAR API DA STEAM !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 app.get('/reports', async (req, res) => {
     try {
         const { data, error } = await supabase
             .from('reports')
             .select('*')
+            .eq('approved', true) // <--- Filtro simples de moderação ativa
             .order('created_at', { ascending: false });
 
         if (error) throw error;
