@@ -28,7 +28,9 @@
         <h1>MURAL DOS <span class="orange">CRIMINOSOS</span></h1>
     </header>
 
-    <input type="text" id="steamSearch" placeholder="Filtrar por Steam ID ou denúncia..." oninput="filterReports()"> <main class="content-box">
+    <input type="text" id="steamSearch" placeholder="Filtrar por Steam ID ou denúncia..." oninput="filterReports()"> 
+    
+    <main class="content-box">
         <div id="mural-logs" class="console-box">
             <p class="orange" style="text-align: center;">CARREGANDO SISTEMA...</p>
         </div>
@@ -46,88 +48,101 @@
     </footer> 
 
     <script>
-    let todasAsDenuncias = []; // variavel global para armazenar os dados do banco
+        let todasAsDenuncias = []; 
+        const LINK_BACKEND = "http://localhost:5000" 
 
-    async function carregarMural() {
-        const container = document.getElementById('mural-logs');
         
-        container.innerHTML = `
-            <div style="text-align: center; padding: 20px;">
-                <div class="loader"></div>
-                <p class="orange">SINCRONIZANDO COM O TERMINAL...</p>
-            </div>
-        `;
-        
-        try {
-            const resposta = await fetch('http://localhost:5000/reports');
+
+        async function carregarMural() {
+            const container = document.getElementById('mural-logs');
             
-            if (!resposta.ok) {
-                const erroServidor = await resposta.json();
-                console.error("Detalhes do erro no Backend/Supabase:", erroServidor);
-                throw new Error('Erro na resposta do servidor');
-            }
-            
-            todasAsDenuncias = await resposta.json();
-
-            if (!todasAsDenuncias || todasAsDenuncias.length === 0) {
-                container.innerHTML = '<p class="orange" style="text-align: center;">Nenhum registro aprovado encontrado no sistema.</p>';
-                return;
-            }
-
-            renderizarCards(todasAsDenuncias);
-
-        } catch (erro) {
-            console.error("Erro ao carregar mural:", erro);
-            container.innerHTML = '<p style="color: #ff4444; text-align: center;">ERRO DE CONEXÃO COM O TERMINAL CENTRAL. <br><small>Verifique se o servidor está rodando.</small></p>';
-        }
-    }
-
-    function renderizarCards(lista) {
-        const container = document.getElementById('mural-logs');
-        container.innerHTML = ''; 
-
-        lista.forEach(item => {
-            const dataFormatada = item.created_at 
-                ? new Date(item.created_at).toLocaleDateString('pt-BR') 
-                : 'DATA INDISPONÍVEL';
-            
-            const logEntry = document.createElement('div');
-            logEntry.className = 'log-entry'; 
-            
-            logEntry.innerHTML = `
-                <div class="log-row" style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                    <span class="log-time" style="color: #888;">[${dataFormatada}]</span>
-                    <span class="log-id" style="color: #ff8c00; font-weight: bold;">ID: ${item.offender_steam_id || 'N/A'}</span>
-                    <span class="log-status">[REPORTADO]</span>
+            container.innerHTML = `
+                <div style="text-align: center; padding: 20px;">
+                    <div class="loader"></div>
+                    <p class="orange">SINCRONIZANDO COM O TERMINAL...</p>
                 </div>
-
-                <p class="log-desc" style="margin: 10px 0; color: #eee;">DETALHES: ${item.description || 'Sem descrição'}</p>
-                
-                ${item.image ? `
-                    <div class="log-image" style="margin-top: 15px; border: 1px solid #333; border-radius: 4px; overflow: hidden;">
-                        <img src="${item.image}" alt="Prova do crime" style="width: 100%; display: block; filter: grayscale(20%) contrast(110%);">
-                    </div>
-                ` : ''}
-
-                <hr style="border: 0.5px solid #333; margin: 15px 0;">
             `;
-            container.appendChild(logEntry);
-        });
-    }
+            
+            try {
+                // faz a chamada para O RENDER
+                const resposta = await fetch(`${LINK_BACKEND}/reports`);
 
-    function filterReports() {
-        const termoBusca = document.getElementById('steamSearch').value.toLowerCase();
+
+                
+                if (!resposta.ok) {
+                    const erroServidor = await resposta.json();
+                    console.error("Erro no Supabase:", erroServidor);
+                    throw new Error('Erro na resposta do servidor');
+                }
+                
+                todasAsDenuncias = await resposta.json();
+
+                if (!todasAsDenuncias || todasAsDenuncias.length === 0) {
+                    container.innerHTML = '<p class="orange" style="text-align: center;">Nenhum registro aprovado encontrado no sistema.</p>';
+                    return;
+                }
+
+                renderizarCards(todasAsDenuncias);
+
+            } catch (erro) {
+                console.error("Erro ao carregar mural:", erro);
+                container.innerHTML = `
+                    <div style="color: #ff4444; text-align: center; padding: 20px;">
+                        <p>ERRO DE CONEXÃO COM O TERMINAL CENTRAL.</p>
+                        <small>O servidor pode estar acordando (plano free) ou o link está incorreto.</small>
+                    </div>
+                `;
+            }
+        }
+
+        function renderizarCards(lista) {
+            const container = document.getElementById('mural-logs');
+            container.innerHTML = ''; 
+
+            lista.forEach(item => {
+                const dataFormatada = item.created_at 
+                    ? new Date(item.created_at).toLocaleDateString('pt-BR') 
+                    : 'DATA INDISPONÍVEL';
+                
+                const logEntry = document.createElement('div');
+                logEntry.className = 'log-entry'; 
+                
+                logEntry.innerHTML = `
+                    <div class="log-row" style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <span class="log-time" style="color: #888;">[${dataFormatada}]</span>
+                        <span class="log-id" style="color: #ff8c00; font-weight: bold;">ID: ${item.offender_steam_id || 'N/A'}</span>
+                        <span class="log-status">[REPORTADO]</span>
+                    </div>
+
+                    <p class="log-desc" style="margin: 10px 0; color: #eee;">DETALHES: ${item.description || 'Sem descrição'}</p>
+                    
+                    ${item.image ? `
+                        <div class="log-image" style="margin-top: 15px; border: 1px solid #333; border-radius: 4px; overflow: hidden;">
+                            <img src="${item.image}" alt="Prova do crime" style="width: 100%; display: block; filter: grayscale(20%) contrast(110%);">
+                        </div>
+                    ` : ''}
+
+                    <hr style="border: 0.5px solid #333; margin: 15px 0;">
+                `;
+                container.appendChild(logEntry);
+            });
+        }
+
+        function filterReports() {
+            const termoBusca = document.getElementById('steamSearch').value.toLowerCase();
+            
+            const denunciasFiltradas = todasAsDenuncias.filter(item => {
+                const idMatch = (item.offender_steam_id || '').toLowerCase().includes(termoBusca);
+                const descMatch = (item.description || '').toLowerCase().includes(termoBusca);
+                return idMatch || descMatch;
+            });
+
+            renderizarCards(denunciasFiltradas);
+        }
+
+        // inicia o carregamento assim que a página abre
+        window.addEventListener('DOMContentLoaded', carregarMural);
         
-        const denunciasFiltradas = todasAsDenuncias.filter(item => {
-            const idMatch = (item.offender_steam_id || '').toLowerCase().includes(termoBusca);
-            const descMatch = (item.description || '').toLowerCase().includes(termoBusca);
-            return idMatch || descMatch;
-        });
-
-        renderizarCards(denunciasFiltradas);
-    }
-
-    window.addEventListener('DOMContentLoaded', carregarMural);
     </script>
 </body>
 </html>

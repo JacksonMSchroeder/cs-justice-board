@@ -7,7 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
-<!-- USAR EM TODAS AS PAG ============================================================== -->
 <body>
     <nav class="navbar">
         <div class="nav-links">
@@ -18,8 +17,6 @@
         </div>
         <div class="nav-auth"><a href="#" class="login-btn">LOGIN STEAM</a></div>
     </nav>
-    <!-- USAR EM TODAS AS PAG ============================================================== -->
-
 
     <header class="main-header">
         <h1>CS2:<span class="orange"> Racismo não é TrashTalk, é CRIME!</span></h1>
@@ -28,14 +25,14 @@
     <section class="mural-destaque">
         <h2 class="orange">ÚLTIMOS REGISTROS</h2>
         <div class="cards-container" id="recent-reports-container">
-            <p style="color: #888; padding: 20px;">Carregando registros recentes...</p>
+            <p style="color: #888; padding: 20px;">Sincronizando com o terminal central...</p>
         </div>
         <a href="mural.html" class="ver-todos">VER MURAL COMPLETO →</a>
     </section>
 
     <main class="content-box">
         <h2>MANIFESTO</h2>
-        <p>No Counter-Strike, a competitividade faz parte da essência, mas o crime não. O racismo e o discurso de ódio não são aceitaveis.</p>
+        <p>No Counter-Strike, a competitividade faz parte da essência, mas o crime não. O racismo e o discurso de ódio não são aceitáveis.</p>
         <p>São crimes previstos em lei, com penas reais que ultrapassam as fronteiras do digital.</p>
     </main>
 
@@ -43,7 +40,6 @@
         <h2>Carta aberta a Valve</h2>
         <p>O Palco de Milhões: <br>
         O Counter-Strike é mais do que um jogo; é um fenômeno cultural que une milhões... <br>
-        (seu texto continua aqui...)
         <br>
         <strong>E é por amarmos este jogo que não aceitaremos que ele seja um refúgio para criminosos.</strong> </p>
     </main>
@@ -56,38 +52,43 @@
     <script>
         async function loadRecentReports() {
             const container = document.getElementById('recent-reports-container');
+            
+            // LINK RENDER 
+            const API_URL = 'https://cs-justice-board.onrender.com/reports';
+
             try {
-                const response = await fetch('http://localhost:5000/reports');
+                const response = await fetch(API_URL);
                 const reports = await response.json();
 
-                if (reports.length === 0) {
-                    container.innerHTML = '<p style="color: #888;">Nenhuma denúncia registrada ainda.</p>';
+                if (!reports || reports.length === 0) {
+                    container.innerHTML = '<p style="color: #888;">Nenhuma denúncia aprovada encontrada.</p>';
                     return;
                 }
 
-  // lpmpa o container e pega apenas as 3 ultimas
-          container.innerHTML = '';
-          reports.slice(0, 3).forEach(report => {
-            const date = new Date(report.created_at).toLocaleDateString('pt-BR');
-             const card = document.createElement('div');
-             card.className = 'card-log';
-              card.innerHTML = `
-               <div class="card-header">
-                <span class="log-date">${date}</span>
-               <span class="status-badge">${report.status || 'LIVE'}</span>
-                  </div>
-                 <p class="log-user">Infrator: ${report.offender_steam_id}</p>
-               <p class="log-msg">"${report.description}"</p>
+                // limpa o container e pega apenas os 3 últimos registros aprovados
+                container.innerHTML = '';
+                reports.slice(0, 3).forEach(report => {
+                    const date = new Date(report.created_at).toLocaleDateString('pt-BR');
+                    const card = document.createElement('div');
+                    card.className = 'card-log';
+                    card.innerHTML = `
+                        <div class="card-header">
+                            <span class="log-date">${date}</span>
+                            <span class="status-badge" style="background: #ff8c00; color: #000; padding: 2px 6px; font-size: 0.8rem; border-radius: 3px; font-weight: bold;">
+                                ${report.status || 'CONFIRMADO'}
+                            </span>
+                        </div>
+                        <p class="log-user" style="color: #ff8c00; margin: 10px 0 5px 0;">Infrator: ${report.offender_steam_id || 'Desconhecido'}</p>
+                        <p class="log-msg" style="font-style: italic; color: #ccc;">"${report.description || 'Sem detalhes'}"</p>
                     `;
                     container.appendChild(card);
                 });
             } catch (error) {
-                console.error('Erro ao carregar:', error);
-                container.innerHTML = '<p style="color: #ff4444;">Erro ao conectar com o servidor.</p>';
+                console.error('Erro ao carregar registros:', error);
+                container.innerHTML = '<p style="color: #ff4444;">Erro de conexão com o terminal central.</p>';
             }
         }
 
-        //  função ao carregar a página
         window.onload = loadRecentReports;
     </script>
 </body>
