@@ -18,6 +18,7 @@ app.get('/reports', async (req, res) => {
         const { data, error } = await supabase
             .from('reports')
             .select('*')
+            .eq('approved', true) // 👈 SÓ TRAZ O QUE VOCÊ APROVOU NO PAINEL
             .order('created_at', { ascending: false });
 
         if (error) throw error;
@@ -41,3 +42,4 @@ const PORT = process.env.PORT || 10000;
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Servidor rodando na porta ${PORT}`);
 });
+
