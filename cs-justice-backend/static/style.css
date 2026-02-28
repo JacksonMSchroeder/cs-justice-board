@@ -7,6 +7,7 @@ body {
     font-family: 'Exo 2', sans-serif;
     color: white;
     text-align: center;
+    
 
     min-height: 100vh;
     
@@ -453,7 +454,7 @@ footer {
     font-size: 0.85rem;
     text-align: center;
     margin-top: auto;
-    
+    flex-direction: column;
 }
 
 .footer-content p {
