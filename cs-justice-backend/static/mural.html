@@ -50,9 +50,8 @@
         </div>
     </footer>
 
-
     <script>
-        let todasAsDenuncias = []; 
+    let todasAsDenuncias = []; 
        
 
         async function carregarMural() {
@@ -67,7 +66,7 @@
             
             try {
                 // faz a chamada para O RENDER
-                const resposta = await fetch(`/reports`);
+                const resposta = await fetch('https://cs-justice-board.onrender.com/reports');
 
 
                 

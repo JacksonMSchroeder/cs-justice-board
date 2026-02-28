@@ -3,9 +3,8 @@ const secoes = document.querySelectorAll('.janela');
 
 botoes.forEach(botao => {
     botao.addEventListener('click', function(event) {
-        // só faz quando link começar com # (âncora)
-    const idAlvo = this.getAttribute('href');
-        if (idAlvo.startsWith('#')) {
+        const idAlvo = this.getAttribute('href');
+        if (idAlvo && idAlvo.startsWith('#')) {
             event.preventDefault();
             secoes.forEach(s => s.classList.remove('active'));
             const secaoAlvo = document.querySelector(idAlvo);
@@ -16,7 +15,7 @@ botoes.forEach(botao => {
     });
 });
 
-//  UPLOAD 
+// --- LÓGICA DE EXIBIÇÃO DE NOME DE ARQUIVO ---
 const inputArquivo = document.getElementById('arquivo');
 if (inputArquivo) {
     inputArquivo.addEventListener('change', function() {

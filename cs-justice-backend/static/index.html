@@ -80,55 +80,52 @@
         </div>
     </footer>
 
-    <script>
-        async function loadRecentReports() {
-            const container = document.getElementById('recent-reports-container');
+    
+
+  <script>
+    async function loadRecentReports() {
+        const container = document.getElementById('recent-reports-container');
+        if (!container) return;
+
+        try {
+           
+            const response = await fetch('https://https://cs-justice-board.onrender.com/reports');
             
-            try {
-                // Rota relativa 
-                const response = await fetch('/reports');
-                
-                // Checagem de segurança 
-                if (!response.ok) throw new Error('Falha ao conectar');
-                
-                const contentType = response.headers.get("content-type");
-                if (!contentType || !contentType.includes("application/json")) {
-                    throw new TypeError("O servidor não enviou JSON. Verifique a ordem das rotas!");
-                }
+            if (!response.ok) throw new Error('Falha ao conectar');
+            
+            const reports = await response.json();
 
-                const reports = await response.json();
-
-                if (!reports || reports.length === 0) {
-                    container.innerHTML = '<p style="color: #888;">Nenhuma denúncia aprovada encontrada.</p>';
-                    return;
-                }
-
-                // limpa e renderiza os 3 últimos
-                container.innerHTML = '';
-                reports.slice(0, 3).forEach(report => {
-                    const date = new Date(report.created_at).toLocaleDateString('pt-BR');
-                    const card = document.createElement('div');
-                    card.className = 'card-log';
-                    card.innerHTML = `
-                        <div class="card-header">
-                            <span class="log-date">${date}</span>
-                            <span class="status-badge" style="background: #ff8c00; color: #000; padding: 2px 6px; font-size: 0.8rem; border-radius: 3px; font-weight: bold;">
-                                ${report.status || 'CONFIRMADO'}
-                            </span>
-                        </div>
-                        <p class="log-user" style="color: #ff8c00; margin: 10px 0 5px 0;">Infrator: ${report.offender_steam_id || 'Desconhecido'}</p>
-                        <p class="log-msg" style="font-style: italic; color: #ccc;">"${report.description || 'Sem detalhes'}"</p>
-                    `;
-                    container.appendChild(card);
-                });
-            } catch (error) {
-                console.error('Erro ao carregar registros:', error);
-                container.innerHTML = '<p style="color: #ff4444;">Erro de conexão com o terminal central.</p>';
+            if (!reports || reports.length === 0) {
+                container.innerHTML = '<p style="color: #888;">Nenhuma denúncia aprovada encontrada.</p>';
+                return;
             }
-        }
 
-        // Inicia a função ao carregar a página
-        window.onload = loadRecentReports;
-    </script>
+            container.innerHTML = '';
+            // Pega apenas os 3 primeiros para o mini-mural
+            reports.slice(0, 3).forEach(report => {
+                const date = new Date(report.created_at).toLocaleDateString('pt-BR');
+                const card = document.createElement('div');
+                card.className = 'card-log';
+                card.innerHTML = `
+                    <div class="card-header">
+                        <span class="log-date">${date}</span>
+                        <span class="status-badge" style="background: #ff8c00; color: #000; padding: 2px 6px; border-radius: 3px; font-weight: bold;">
+                            ${report.status || 'CONFIRMADO'}
+                        </span>
+                    </div>
+                    <p class="log-user" style="color: #ff8c00; margin: 10px 0 5px 0;">Infrator: ${report.offender_steam_id || 'Desconhecido'}</p>
+                    <p class="log-msg" style="font-style: italic; color: #ccc;">"${report.description || 'Sem detalhes'}"</p>
+                `;
+                container.appendChild(card);
+            });
+        } catch (error) {
+            console.error('Erro ao carregar registros recentes:', error);
+            container.innerHTML = '<p style="color: #ff4444;">Erro de conexão com o terminal.</p>';
+        }
+    }
+
+    // Chama a função ao carregar a página
+    window.addEventListener('load', loadRecentReports);
+</script>
 </body>
 </html>
