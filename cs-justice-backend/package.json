@@ -1,18 +1,20 @@
 {
   "name": "cs-justice-backend",
   "version": "1.0.0",
+  "description": "Sistema de denúncias contra toxicidade no CS2",
   "main": "server.js",
+  "type": "commonjs",
   "scripts": {
     "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "type": "commonjs",
   "dependencies": {
-    "@supabase/supabase-js": "^2.97.0",
-    "cors": "^2.8.6",
-    "dotenv": "^17.3.1",
-    "express": "^5.2.1",
-    "mongoose": "^9.2.2",
-    "multer": "^2.0.2"
+    "@supabase/supabase-js": "^2.39.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

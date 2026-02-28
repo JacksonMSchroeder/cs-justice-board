@@ -1,55 +1,42 @@
 const express = require('express');
 const { createClient } = require('@supabase/supabase-js');
 const cors = require('cors');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
 
-// configuração do cors - aceita requisições de qualquer lugar, importante para Vercel
 app.use(cors());
 app.use(express.json());
 
-// Variáveis do RENDER/Supabase
+// 1. CONEXÃO SUPABASE
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
-// ROTA RAIZ: Para você testar se o servidor está vivo no link principal
-app.get('/', (req, res) => {
-    res.send('🚀 Backend do CS-Justice rodando com sucesso!');
-});
-
-// ROTA PARA O MURAL: Puxar denúncias aprovadas
+// 2. ROTA DE API (DADOS)
 app.get('/reports', async (req, res) => {
     try {
         const { data, error } = await supabase
             .from('reports')
             .select('*')
-            //.eq('approved', true)
             .order('created_at', { ascending: false });
 
         if (error) throw error;
-        res.json(data);
+        res.status(200).json(data);
     } catch (error) {
-        console.error('Erro ao buscar denúncias:', error);
-        res.status(400).json(error);
+        console.error('Erro API:', error);
+        res.status(500).json({ error: error.message });
     }
 });
 
-// ROTA PARA CRIAR DENÚNCIA
-app.post('/reports', async (req, res) => {
-    try {
-        const { data, error } = await supabase
-            .from('reports')
-            .insert([req.body]);
+//ARQUIVOS ESTÁTICOS
+app.use(express.static(path.join(__dirname, 'static')));
 
-        if (error) throw error;
-        res.status(201).json(data);
-    } catch (error) {
-        console.error('Erro ao criar denúncia:', error);
-        res.status(400).json(error);
-    }
+
+app.get(/.*/, (req, res) => {
+    res.sendFile(path.join(__dirname, 'static', 'index.html'));
 });
 
-// LIGAR O SERVIDOR
+//LIGAR SERVIDOR
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Servidor rodando na porta ${PORT}`);
