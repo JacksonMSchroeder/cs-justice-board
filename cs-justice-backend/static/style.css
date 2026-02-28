@@ -445,13 +445,15 @@ textarea:focus {
 
 /* NOTA DE RODAPÉ, ALL PAGES */
 footer {
-   margin-top: 80px; /* espaço generoso q */
+   margin-top: 80px; /* espaço generoso  */
     padding: 15px 20px; /* para a barra ficar fina */
     background: rgba(10, 15, 25, 0.98);
     border-top: 2px solid #333;
     color: #888;
     font-size: 0.85rem;
     text-align: center;
+    margin-top: auto;
+    
 }
 
 .footer-content p {
