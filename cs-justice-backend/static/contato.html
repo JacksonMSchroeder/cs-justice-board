@@ -80,74 +80,59 @@
             <p class="disclaimer">Este site não possui vínculo com a Valve Corporation ou Steam.</p>
         </div>
     </footer>
-    
+
     <script>
-        const reportForm = document.getElementById('reportForm');
-        const inputArquivo = document.getElementById('arquivo');
-        const labelTexto = document.getElementById('file-name');
+    const reportForm = document.getElementById('reportForm');
+    const inputArquivo = document.getElementById('arquivo');
+    const labelTexto = document.getElementById('file-name');
 
-        // PARA TRANSFORMAR A IMAGEM                             !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        const toBase64 = file => new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = error => reject(error);
-        });
+    const toBase64 = file => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = e => reject(e);
+    });
 
-        //  
-        inputArquivo.addEventListener('change', function() {
-            if (this.files && this.files.length > 0) {
-                let nomes = Array.from(this.files).map(f => f.name);
-                labelTexto.innerText = nomes.length === 1 ? "Selecionado: " + nomes[0] : nomes.length + " arquivos selecionados";
-                labelTexto.style.color = "#00ff00"; 
-            } else {
+    inputArquivo.addEventListener('change', () => {
+        if (inputArquivo.files.length > 0) {
+            labelTexto.innerText = "Selecionado: " + inputArquivo.files[0].name;
+            labelTexto.style.color = "#00ff00";
+        }
+    });
+
+    reportForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        let imagemBase64 = null;
+        if (inputArquivo.files.length > 0) {
+            imagemBase64 = await toBase64(inputArquivo.files[0]);
+        }
+
+        const payload = {
+            reporter: document.getElementById('reporter').value,
+            offender_steam_id: document.getElementById('offender_steam_id').value,
+            description: document.getElementById('mensagem').value,
+            image: imagemBase64
+        };
+
+        try {
+            const res = await fetch('https://cs-justice-board.onrender.com/api/reports', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                alert('✅ Denúncia enviada! Aguarde a moderação.');
+                reportForm.reset();
                 labelTexto.innerText = "Nenhum arquivo selecionado";
-                labelTexto.style.color = "#888"; 
+            } else {
+                alert('❌ Erro ao enviar denúncia.');
             }
-        });
-
-        // LOG de envio
-        reportForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            let imagemBase64 = null;
-            
-            // se tiver arquivo converte
-            if (inputArquivo.files.length > 0) {
-                try {
-                    imagemBase64 = await toBase64(inputArquivo.files[0]);
-                } catch (err) {
-                    console.error("Erro na conversão da imagem:", err);
-                }
-            }
-
-            const formData = {
-                reporter: document.getElementById('reporter').value,
-                offender_steam_id: document.getElementById('offender_steam_id').value,
-                description: document.getElementById('mensagem').value,
-                image: imagemBase64 // para a coluna 'image' do Supabase
-            };
-
-            try {
-                const response = await fetch('/reports', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
-                });
-
-                if (response.ok) {
-                    alert('✅ Denúncia e imagem enviadas ao Mural com sucesso!');
-                    reportForm.reset();
-                    labelTexto.innerText = "Nenhum arquivo selecionado";
-                    labelTexto.style.color = "#888";
-                } else {
-                    alert('❌ Erro ao enviar denúncia.');
-                }
-            } catch (error) {
-                console.error('Erro de conexão:', error);
-                alert('🚨 Servidor offline!.');
-            }
-        });
-    </script>
+        } catch (err) {
+            alert('🚨 Servidor offline ou erro de rede.');
+        }
+    });
+</script>
 </body>
 </html>

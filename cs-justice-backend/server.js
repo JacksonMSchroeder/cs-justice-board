@@ -1,49 +1,57 @@
 const express = require('express');
 const { createClient } = require('@supabase/supabase-js');
 const cors = require('cors');
-const path = require('path');
-const helmet = require('helmet'); // <--- proteçao
+const helmet = require('helmet');
+const path = require('path'); // Adicione isso
 require('dotenv').config();
 
 const app = express();
 
-// Segurança Básica
-app.use(helmet({
-    contentSecurityPolicy: false, //  scripts externos
-}));
+app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '50mb' })); 
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-// CONEXÃO SUPABASE
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
-// 2. ROTA DE API (DADOS)
-app.get('/api/reports', async (req, res) => { 
+// --- MUDAMOS PARA /api/reports ---
+app.get('/api/reports', async (req, res) => {
     try {
         const { data, error } = await supabase
             .from('reports')
             .select('*')
-            .eq('approved', true) 
+            .eq('approved', true)
             .order('created_at', { ascending: false });
 
         if (error) throw error;
         res.status(200).json(data);
     } catch (error) {
-        console.error('Erro na busca de reports:', error.message);
-        res.status(500).json({ error: "Erro interno no servidor" }); // Não expor dados
+        res.status(500).json({ error: "Erro ao buscar dados" });
     }
 });
 
-// ARQUIVOS ESTÁTICOS
-app.use(express.static(path.join(__dirname, 'static')));
+app.post('/api/reports', async (req, res) => {
+    try {
+        const { offender_steam_id, description, image, reporter } = req.body;
+        const { data, error } = await supabase
+            .from('reports')
+            .insert([{ offender_steam_id, description, image, reporter, approved: false }]);
 
-// SPA Fallback 
-app.get(/.*/, (req, res) => {
-    res.sendFile(path.join(__dirname, 'static', 'index.html'));
+        if (error) throw error;
+        res.status(201).json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: "Erro ao salvar denúncia" });
+    }
 });
 
-// LIGAR SERVIDOR
+
+app.use(express.static(path.join(__dirname, 'public'))); 
+
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Servidor em Produção na porta ${PORT}`);
+    console.log(`🚀 Terminal ativo na porta ${PORT}`);
 });
