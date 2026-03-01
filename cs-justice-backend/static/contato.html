@@ -81,7 +81,7 @@
         </div>
     </footer>
 
-    <script>
+<script>
     const reportForm = document.getElementById('reportForm');
     const inputArquivo = document.getElementById('arquivo');
     const labelTexto = document.getElementById('file-name');
@@ -116,7 +116,7 @@
         };
 
         try {
-            const res = await fetch('https://cs-justice-board.onrender.com/api/reports', {
+            const res = await fetch('/api/reports', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -134,5 +134,3 @@
         }
     });
 </script>
-</body>
-</html>

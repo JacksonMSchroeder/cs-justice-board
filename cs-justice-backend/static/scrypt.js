@@ -15,7 +15,7 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
 // ROTA GET: 
-app.get('/reports', async (req, res) => {
+app.get('/api/reports', async (req, res) => {
     try {
         const { data, error } = await supabase
             .from('reports')
@@ -31,7 +31,7 @@ app.get('/reports', async (req, res) => {
 });
 
 
-app.post('/reports', async (req, res) => {
+app.post( '/api/reports', async (req, res) => {
     try {
         const { offender_steam_id, description, image, reporter } = req.body;
         
@@ -53,7 +53,7 @@ app.post('/reports', async (req, res) => {
     }
 });
 
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Terminal ativo na porta ${PORT}`);
 });
