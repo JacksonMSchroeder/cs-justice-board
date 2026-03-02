@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> MURAL DA VERGONHA </title>
+    <title>MURAL DOS CRIMINOSOS</title>
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -20,7 +20,7 @@
 
     <div class="mural-actions">
         <a href="contato.html" class="btn-reportar">
-            <span class="icon"> </span> NEW REPORT
+            <span class="icon">⚠️</span> NEW REPORT
         </a>
     </div>
 
@@ -28,7 +28,10 @@
         <h1>MURAL DOS <span class="orange">CRIMINOSOS</span></h1>
     </header>
 
-    <input type="text" id="steamSearch" placeholder="Filtrar por Steam ID ou denúncia..." oninput="filterReports()"> 
+    <div style="max-width: 800px; margin: 0 auto;">
+        <input type="text" id="steamSearch" placeholder="Filtrar por Steam ID, Nome ou Crime..." oninput="filterReports()" 
+               style="width: 100%; padding: 12px; background: rgba(0,0,0,0.5); border: 1px solid #333; color: white; font-family: inherit;">
+    </div>
     
     <main class="content-box">
         <div id="mural-logs" class="console-box">
@@ -42,50 +45,114 @@
         </div>
     </main>
 
-    
-         </main> <footer>
+    <footer>
         <div class="footer-content">
             <p>&copy; 2026 Projeto Independente de Combate à Toxicidade.</p>
             <p class="disclaimer">Este site não possui vínculo com a Valve Corporation ou Steam.</p>
         </div>
     </footer>
 
-<script>
+    <script>
+    let todosOsDados = []; 
+    let dadosFiltrados = []; // TESTE NÃO QUEBRAR A PAGINAÇAO !!!!!!!
+    let paginaAtual = 1;
+    const itensPorPagina = 5;
+
     async function carregarMural() {
         const container = document.getElementById('mural-logs');
         container.innerHTML = '<p style="color:orange; text-align:center;">SINCRONIZANDO TERMINAL...</p>';
 
         try {
-            
             const resposta = await fetch('/api/reports');
             if (!resposta.ok) throw new Error('Falha no servidor');
             
-            const dados = await resposta.json();
+            todosOsDados = await resposta.json(); 
+            dadosFiltrados = [...todosOsDados]; // começa com todos
+            renderizarPagina(1);
 
-            if (dados.length === 0) {
-                container.innerHTML = '<p style="color:gray; text-align:center;">NENHUM REGISTRO APROVADO.</p>';
-                return;
-            }
-
-            container.innerHTML = '';
-            dados.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'log-entry'; 
-                card.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; color:#888; font-size:0.8rem;">
-                        <span>[${new Date(item.created_at).toLocaleDateString('pt-BR')}]</span>
-                        <span style="color:#ff8c00; font-weight:bold;">ID: ${item.offender_steam_id}</span>
-                    </div>
-                    <p style="margin:10px 0;">DETALHES: ${item.description}</p>
-                    ${item.image ? `<img src="${item.image}" style="width:100%; border-radius:4px; border:1px solid #333;">` : ''}
-                    <hr style="border:0.5px solid #222; margin:15px 0;">
-                `;
-                container.appendChild(card);
-            });
         } catch (erro) {
+            console.error(erro);
             container.innerHTML = '<p style="color:red; text-align:center;">ERRO AO CONECTAR COM O TERMINAL.</p>';
         }
     }
+
+    function renderizarPagina(pagina) {
+        paginaAtual = pagina;
+        const inicio = (pagina - 1) * itensPorPagina;
+        const fim = inicio + itensPorPagina;
+        const dadosPaginados = dadosFiltrados.slice(inicio, fim);
+
+        renderizarCards(dadosPaginados);
+        atualizarControles();
+    }
+
+    function renderizarCards(lista) {
+        const container = document.getElementById('mural-logs');
+        container.innerHTML = '';
+
+        if (lista.length === 0) {
+            container.innerHTML = '<p style="color:gray; text-align:center;">NENHUM REGISTRO ENCONTRADO.</p>';
+            return;
+        }
+
+        lista.forEach(item => {
+            const isBanido = item.vac_status === true;
+            const corStatus = isBanido ? '#ff4444' : '#00ff00';
+            const textoStatus = isBanido ? '🚨 CONTA BANIDA (VAC/GAME)' : '✅ CONTA LIMPA';
+            const urlMidia = item.evidence_url || item.image;
+
+            let mediaHTML = '';
+            if (urlMidia) {
+                const urlLower = urlMidia.toLowerCase();
+                if (urlLower.match(/\.(mp4|webm|mov)$/)) {
+                    mediaHTML = `<div style="margin-top:10px;"><video controls preload="metadata" style="width:100%; border-radius:4px; border:1px solid #333; background:#000;"><source src="${urlMidia}"></video></div>`;
+                } else if (urlLower.match(/\.(mp3|wav|m4a|ogg)$/)) {
+                    mediaHTML = `<div style="margin-top:10px; background:#111; padding:10px; border-radius:4px;"><audio controls style="width:100%; height:35px;"><source src="${urlMidia}"></audio></div>`;
+                } else {
+                    mediaHTML = `<div class="log-image" style="margin-top:10px;"><img src="${urlMidia}" style="width:100%; border-radius:4px; border:1px solid #333; cursor:pointer;" onclick="window.open(this.src)"></div>`;
+                }
+            }
+
+            const card = document.createElement('div');
+            card.className = 'log-entry'; 
+            card.innerHTML = `
+                <div style="display:flex; align-items:center; gap:15px; margin-bottom:12px;">
+                    <img src="${item.avatarsteam || 'https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg'}" 
+                         style="width:45px; height:45px; border-radius:4px; border:2px solid ${corStatus};">
+                    <div>
+                        <span class="orange" style="display:block; font-weight:bold;">${item.offender_name || 'IDENTIDADE OCULTA'}</span>
+                        <div style="font-size:0.7rem; color:#888;">[${new Date(item.created_at).toLocaleDateString('pt-BR')}] ID: ${item.offender_steam_id}</div>
+                        <span style="font-size:0.65rem; font-weight:bold; color:${corStatus};">${textoStatus}</span>
+                    </div>
+                </div>
+                <p style="margin:10px 0; color:#eee; border-left:2px solid #333; padding-left:10px;"><strong>DETALHES:</strong> ${item.description}</p>
+                ${mediaHTML}
+                <hr style="border:0.5px solid #222; margin:15px 0;">
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    function filterReports() {
+        const termo = document.getElementById('steamSearch').value.toLowerCase();
+        dadosFiltrados = todosOsDados.filter(item => 
+            item.offender_steam_id.toLowerCase().includes(termo) || 
+            (item.offender_name && item.offender_name.toLowerCase().includes(termo)) ||
+            item.description.toLowerCase().includes(termo)
+        );
+        renderizarPagina(1); // pag1 com o filtro
+    }
+
+    function atualizarControles() {
+        const totalPaginas = Math.ceil(dadosFiltrados.length / itensPorPagina);
+        document.getElementById('pag-number').innerText = `PÁGINA ${paginaAtual} DE ${totalPaginas || 1}`;
+        document.getElementById('prevBtn').disabled = paginaAtual === 1;
+        document.getElementById('nextBtn').disabled = paginaAtual >= totalPaginas || totalPaginas === 0;
+    }
+
+    document.getElementById('prevBtn').onclick = () => renderizarPagina(paginaAtual - 1);
+    document.getElementById('nextBtn').onclick = () => renderizarPagina(paginaAtual + 1);
+
     window.addEventListener('DOMContentLoaded', carregarMural);
 </script>
 </body>

@@ -88,10 +88,9 @@
         if (!container) return;
 
         try {
-            
+            // Busca as denúncias da sua API
             const response = await fetch('/api/reports');
-            
-            if (!response.ok) throw new Error('Falha ao conectar');
+            if (!response.ok) throw new Error('Falha ao conectar com o servidor');
             
             const reports = await response.json();
 
@@ -102,28 +101,83 @@
 
             container.innerHTML = '';
             
+            // Pega apenas os 3 registros mais recentes para a Home
             reports.slice(0, 3).forEach(report => {
                 const date = new Date(report.created_at).toLocaleDateString('pt-BR');
+                const isBanido = report.vac_status === true;
+                const corStatus = isBanido ? '#ff4444' : '#00ff00';
+                const textoStatus = isBanido ? '🚨 BANIDO' : '✅ LIMPO';
+
+                // --- (VIDEO / AUDIO / IMAGEM) ---
+                let mediaHTML = '';
+                if (report.evidence_url) {
+                    const url = report.evidence_url.toLowerCase();
+                    
+                    if (url.match(/\.(mp4|webm|ogg|mov)$/)) {
+                        // Se for VÍDEO
+                        mediaHTML = `
+                            <video controls preload="metadata" style="width: 100%; border-radius: 4px; margin-top: 10px; border: 1px solid #333; background: #000;">
+                                <source src="${report.evidence_url}">
+                                Seu navegador não suporta o player de vídeo.
+                            </video>`;
+                    } else if (url.match(/\.(mp3|wav|m4a)$/)) {
+                        // Se for ÁUDIO
+                        mediaHTML = `
+                            <div style="margin-top: 10px; background: #111; padding: 8px; border-radius: 4px; border: 1px solid #222;">
+                                <span style="font-size: 0.6rem; color: #888; display: block; margin-bottom: 5px;">PROVA EM ÁUDIO:</span>
+                                <audio controls style="width: 100%; height: 35px;">
+                                    <source src="${report.evidence_url}">
+                                </audio>
+                            </div>`;
+                    } else {
+                        // Se for IMAGEM 
+                        mediaHTML = `
+                            <img src="${report.evidence_url}" 
+                                 style="width: 100%; border-radius: 4px; margin-top: 10px; cursor: pointer; border: 1px solid #333;" 
+                                 onclick="window.open(this.src)" 
+                                 alt="Prova da denúncia">`;
+                    }
+                }
+
+                // --- MONTAGEM DO CARD ---
                 const card = document.createElement('div');
                 card.className = 'card-log';
                 card.innerHTML = `
-                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                        <span class="log-date" style="font-size: 0.8rem; color: #888;">${date}</span>
-                        <span class="status-badge" style="background: #ff8c00; color: #000; padding: 2px 6px; border-radius: 3px; font-weight: bold; font-size: 0.7rem;">
-                            REPORTADO
-                        </span>
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <img src="${report.avatarsteam || 'https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg'}" 
+                                 style="width: 40px; height: 40px; border-radius: 4px; border: 2px solid ${corStatus};">
+                            <div>
+                                <strong style="color: #ff8c00; font-size: 0.9rem; display: block;">
+                                    ${report.offender_name || 'IDENTIDADE OCULTA'}
+                                </strong>
+                                <span style="font-size: 0.65rem; font-weight: bold; color: ${corStatus}; text-transform: uppercase;">
+                                    ${textoStatus}
+                                </span>
+                            </div>
+                        </div>
+                        <span style="font-size: 0.7rem; color: #555;">${date}</span>
                     </div>
-                    <p class="log-user" style="color: #ff8c00; margin: 10px 0 5px 0; font-weight: bold;">Infrator: ${report.offender_steam_id || 'Desconhecido'}</p>
-                    <p class="log-msg" style="font-style: italic; color: #ccc; font-size: 0.9rem;">"${report.description || 'Sem detalhes'}"</p>
+                    
+                    <p class="log-msg" style="font-style: italic; color: #ccc; font-size: 0.85rem; border-left: 2px solid #ff8c00; padding-left: 10px; margin: 0;">
+                        "${report.description || 'Sem detalhes fornecidos.'}"
+                    </p>
+                    
+                    ${mediaHTML}
+                    
+                    <div style="font-size: 0.6rem; color: #444; margin-top: 10px; text-align: right; font-family: monospace;">
+                        STEAM_ID: ${report.offender_steam_id}
+                    </div>
                 `;
                 container.appendChild(card);
             });
         } catch (error) {
-            console.error('Erro ao carregar registros recentes:', error);
-            container.innerHTML = '<p style="color: #ff4444; text-align: center;">Erro de conexão com o terminal central.</p>';
+            console.error('Erro ao carregar registros:', error);
+            container.innerHTML = '<p style="color: #ff4444; text-align: center;">Erro de sincronização com o banco de dados.</p>';
         }
     }
 
+    
     window.addEventListener('load', loadRecentReports);
 </script>
 </body>

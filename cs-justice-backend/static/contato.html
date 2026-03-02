@@ -50,31 +50,31 @@
 
         <section class="envio-mural">
             <h2 class="orange">ENVIE PARA O MURAL</h2>
-            <p>Ajude-nos a documentar a toxicidade. Envie provas de racismo no CS2. É Anônimo e seguro !  </p>
+            <p>Ajude-nos a documentar a toxicidade. Envie provas de racismo no CS2. É Anônimo e seguro!</p>
             
             <form id="reportForm" class="form-contato">
-                <input type="text" id="reporter" placeholder="Seu Nick ou E-mail" required>
-                <input type="text" id="offender_steam_id" placeholder="SteamID do Infrator" required>
+                <input type="text" id="reporter" placeholder="Seu Nick ou E-mail (Opcional)" required>
+                <input type="text" id="offender_steam_id" placeholder="SteamID64 do Infrator (Apenas números)" required>
                 
                 <div class="input-group">
                     <label for="mensagem">DESCRIÇÃO DOS FATOS</label>
-                    <textarea id="mensagem" name="mensagem" placeholder="Descreva o ocorrido com detalhes..." required></textarea>
+                    <textarea id="mensagem" name="mensagem" placeholder="Descreva o ocorrido com detalhes (Ex: falou no chat de voz aos 10 minutos)..." required></textarea>
                 </div>
 
                 <div class="file-upload-wrapper">
                     <label for="arquivo" class="btn-arquivo">
                         <span class="icon">📁</span> ANEXAR PROVAS
                     </label>
-                    <input type="file" id="arquivo" name="arquivo" hidden multiple>
+                    <input type="file" id="arquivo" name="arquivo" hidden accept="image/*,video/mp4,video/webm,audio/mpeg,audio/wav">
                     <span id="file-name">Nenhum arquivo selecionado</span>
                 </div>
 
-                <button type="submit" class="send-btn">ENVIAR DENÚNCIA</button>
+                <button type="submit" id="btnEnviar" class="send-btn">ENVIAR DENÚNCIA</button>
             </form>
         </section>
     </main>
 
-   </main> <footer>
+    <footer>
         <div class="footer-content">
             <p>&copy; 2026 Projeto Independente de Combate à Toxicidade.</p>
             <p class="disclaimer">Este site não possui vínculo com a Valve Corporation ou Steam.</p>
@@ -85,52 +85,65 @@
     const reportForm = document.getElementById('reportForm');
     const inputArquivo = document.getElementById('arquivo');
     const labelTexto = document.getElementById('file-name');
+    const btnEnviar = document.getElementById('btnEnviar');
 
-    const toBase64 = file => new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = e => reject(e);
-    });
-
+    
     inputArquivo.addEventListener('change', () => {
         if (inputArquivo.files.length > 0) {
-            labelTexto.innerText = "Selecionado: " + inputArquivo.files[0].name;
-            labelTexto.style.color = "#00ff00";
+            const arquivo = inputArquivo.files[0];
+            const tamanhoMB = arquivo.size / (1024 * 1024);
+
+            if (tamanhoMB > 25) { // Limite 
+                alert("⚠️ Arquivo muito grande! O limite é de 25MB.");
+                inputArquivo.value = ""; // limpa o campo
+                labelTexto.innerText = "Arquivo muito grande (Máx 25MB)";
+                labelTexto.style.color = "#ff4444";
+            } else {
+                labelTexto.innerText = "Selecionado: " + arquivo.name;
+                labelTexto.style.color = "#00ff00";
+            }
         }
     });
 
     reportForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        let imagemBase64 = null;
+        btnEnviar.innerText = "🚀 SINCRONIZANDO COM O TERMINAL...";
+        btnEnviar.disabled = true;
+        btnEnviar.style.opacity = "0.5";
+
+        const formData = new FormData();
+        formData.append('reporter', document.getElementById('reporter').value);
+        formData.append('offender_steam_id', document.getElementById('offender_steam_id').value.trim());
+        formData.append('description', document.getElementById('mensagem').value);
+        
         if (inputArquivo.files.length > 0) {
-            imagemBase64 = await toBase64(inputArquivo.files[0]);
+            formData.append('arquivo', inputArquivo.files[0]);
         }
 
-        const payload = {
-            reporter: document.getElementById('reporter').value,
-            offender_steam_id: document.getElementById('offender_steam_id').value,
-            description: document.getElementById('mensagem').value,
-            image: imagemBase64
-        };
-
         try {
-            const res = await fetch('/api/reports', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+           const res = await fetch('http://localhost:5000/api/reports', {
+        method: 'POST',
+        body: formData
             });
 
             if (res.ok) {
-                alert('✅ Denúncia enviada! Aguarde a moderação.');
+                alert('✅ REGISTRO ENVIADO. As provas estão em análise pela rede.');
                 reportForm.reset();
                 labelTexto.innerText = "Nenhum arquivo selecionado";
+                labelTexto.style.color = "#888";
             } else {
-                alert('❌ Erro ao enviar denúncia.');
+                const erro = await res.json();
+                alert('❌ FALHA NO PROTOCOLO: ' + (erro.error || 'Erro interno no servidor.'));
             }
         } catch (err) {
-            alert('🚨 Servidor offline ou erro de rede.');
+            alert('🚨 ERRO CRÍTICO: Conexão com o servidor perdida.');
+        } finally {
+            btnEnviar.innerText = "ENVIAR DENÚNCIA";
+            btnEnviar.disabled = false;
+            btnEnviar.style.opacity = "1";
         }
     });
 </script>
+</body>
+</html>

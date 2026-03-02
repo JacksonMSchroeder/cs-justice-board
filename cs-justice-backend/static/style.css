@@ -611,3 +611,43 @@ footer {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
+/* CSS PARA INF STEAM */
+.avatar-steam {
+    width: 45px;
+    height: 45px;
+    border-radius: 4px; /* levemente arredondado combina com CS */
+    border: 2px solid #ff9d00;
+    object-fit: cover;
+    background: #000;
+}
+
+.user-info-mural {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 12px;
+}
+video {
+    max-height: 450px; /* evita que video verticais ocupem a tela toda */
+    outline: none;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+}
+
+audio::-webkit-media-controls-panel {
+    background-color: #ff8c00; /* da um toque laranja  */
+}
+video, img {
+    max-width: 100%;  /* videos e cards n vazarem */
+    display: block;
+    margin: 10px 0;
+}
+/* custamizaçao dos card */
+.log-entry {
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+}
+.log-entry:hover {
+    background: rgba(255, 140, 0, 0.05);
+    border-left: 3px solid #ff8c00;
+    transform: translateX(5px);
+}
