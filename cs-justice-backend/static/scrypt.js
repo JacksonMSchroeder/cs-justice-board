@@ -15,7 +15,7 @@ const upload = multer({
     limits: { fileSize: 20 * 1024 * 1024 } // LIMITE PARA UM CLIPE OU AUDIO  >TESTAR<
 });
 
-// ---  SEGURANÇA  ---
+// SEGURANÇA  
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors());
 app.use(express.json()); 
@@ -44,83 +44,78 @@ app.get('/api/reports', async (req, res) => {
 });
 
 // 2ROTA POST:
-app.post('/api/reports', upload.single('arquivo'), async (req, res) => {
+app.post('/api/reports', upload.single('arquivo'), async (req, res) => { 
     try {
         const { offender_steam_id, description, reporter } = req.body;
-        const file = req.file; // video, audio, imagem
         const STEAM_API_KEY = process.env.STEAM_API_KEY; 
+        const file = req.file; 
+        
+        let finalEvidenceUrl = null;
 
-        let evidenceUrl = null;
-
-        // storage no supa
+        // 1. logica da storage
         if (file) {
-            const fileExt = path.extname(file.originalname);
-            const fileName = `${Date.now()}_${Math.floor(Math.random() * 1000)}${fileExt}`;
-
-            const { data: uploadData, error: uploadError } = await supabase.storage
-                .from('evidencias')
+            const fileName = `${Date.now()}-${file.originalname}`;
+            const { data: storageData, error: storageError } = await supabase.storage
+                .from('evidencias') // certifique-se que o bucket tem esse nome
                 .upload(fileName, file.buffer, {
                     contentType: file.mimetype,
                     upsert: false
                 });
 
-            if (uploadError) throw uploadError;
+            if (storageError) throw storageError;
 
-            // pegar a URL  
             const { data: urlData } = supabase.storage
                 .from('evidencias')
                 .getPublicUrl(fileName);
             
-            evidenceUrl = urlData.publicUrl;
+            finalEvidenceUrl = urlData.publicUrl;
         }
 
-        // Nome e Avatar 
-        let nomeOficial = "Não Identificado";
-        let fotoOficial = "https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg";
-        let estaBanido = false; 
+        // 2. COD VALVE
+        let offender_name = "Não Identificado";
+        let avatarsteam = "https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg";
+        let vac_status = "Limpa";
 
         try {
-            const steamRes = await axios.get(`http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${STEAM_API_KEY}&steamids=${offender_steam_id}`);
-            const player = steamRes.data.response.players[0];
+            const [resSteam, resBans] = await Promise.all([
+                axios.get(`https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${STEAM_API_KEY}&steamids=${offender_steam_id}`),
+                axios.get(`https://api.steampowered.com/ISteamUser/GetPlayerBans/v1/?key=${STEAM_API_KEY}&steamids=${offender_steam_id}`)
+            ]);
+
+            const player = resSteam.data.response.players[0];
             if (player) {
-                nomeOficial = player.personaname;
-                fotoOficial = player.avatarfull; 
+                offender_name = player.personaname;
+                avatarsteam = player.avatarfull;
             }
-        } catch (apiErr) {
-            console.error("Erro na API de Summaries da Valve");
-        }
 
-        // Verificar Bans
-        try {
-            const banRes = await axios.get(`http://api.steampowered.com/ISteamUser/GetPlayerBans/v1/?key=${STEAM_API_KEY}&steamids=${offender_steam_id}`);
-            const banData = banRes.data.players[0];
+            const banData = resBans.data.players[0];
             if (banData && (banData.VACBanned || banData.NumberOfGameBans > 0)) {
-                estaBanido = true;
+                vac_status = "Banido";
             }
-        } catch (banErr) {
-            console.error("Erro na API de Bans da Valve");
+        } catch (e) { 
+            console.error("Erro na comunicação com a API da Valve:", e.message); 
         }
 
-        //  tabela 'reports'
-        const { data, error } = await supabase
+        // SALVAR NO BANCO
+        const { error: dbError } = await supabase
             .from('reports')
             .insert([{ 
                 offender_steam_id, 
                 description, 
-                evidence_url: evidenceUrl, //  Storage DO SUPA
-                reporter,
-                offender_name: nomeOficial,
-                avatarsteam: fotoOficial,
-                vac_status: estaBanido,
+                evidence_url: finalEvidenceUrl, // var existe
+                reporter, 
+                offender_name,
+                avatarsteam,
+                vac_status,
                 approved: false 
             }]);
-
-        if (error) throw error;
+        
+        if (dbError) throw dbError;
         res.status(201).json({ success: true });
 
     } catch (error) {
-        console.error("Erro Geral no Servidor:", error.message);
-        res.status(500).json({ error: "Erro ao processar denúncia" });
+        console.error("Erro POST:", error.message);
+        res.status(500).json({ error: "Erro ao salvar denúncia" });
     }
 });
 

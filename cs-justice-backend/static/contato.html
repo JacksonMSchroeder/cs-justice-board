@@ -87,15 +87,15 @@
     const labelTexto = document.getElementById('file-name');
     const btnEnviar = document.getElementById('btnEnviar');
 
-    
+   
     inputArquivo.addEventListener('change', () => {
         if (inputArquivo.files.length > 0) {
             const arquivo = inputArquivo.files[0];
             const tamanhoMB = arquivo.size / (1024 * 1024);
 
-            if (tamanhoMB > 25) { // Limite 
+            if (tamanhoMB > 25) { 
                 alert("⚠️ Arquivo muito grande! O limite é de 25MB.");
-                inputArquivo.value = ""; // limpa o campo
+                inputArquivo.value = ""; 
                 labelTexto.innerText = "Arquivo muito grande (Máx 25MB)";
                 labelTexto.style.color = "#ff4444";
             } else {
@@ -105,6 +105,7 @@
         }
     });
 
+    
     reportForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
@@ -122,28 +123,32 @@
         }
 
         try {
-           const res = await fetch('http://localhost:5000/api/reports', {
-        method: 'POST',
-        body: formData
+           
+            const response = await fetch('http://localhost:5000/api/reports', { 
+                method: 'POST',
+                body: formData
             });
 
-            if (res.ok) {
+            
+            const resultado = await response.json().catch(() => ({ error: "Erro na resposta do servidor" }));
+
+            if (response.ok) {
                 alert('✅ REGISTRO ENVIADO. As provas estão em análise pela rede.');
                 reportForm.reset();
                 labelTexto.innerText = "Nenhum arquivo selecionado";
                 labelTexto.style.color = "#888";
             } else {
-                const erro = await res.json();
-                alert('❌ FALHA NO PROTOCOLO: ' + (erro.error || 'Erro interno no servidor.'));
+                alert('❌ FALHA NO PROTOCOLO: ' + (resultado.error || 'Erro desconhecido.'));
             }
         } catch (err) {
-            alert('🚨 ERRO CRÍTICO: Conexão com o servidor perdida.');
+            console.error("Erro detalhado:", err); 
+            alert('🚨 ERRO CRÍTICO: Conexão recusada. Verifique se o terminal está rodando!');
         } finally {
             btnEnviar.innerText = "ENVIAR DENÚNCIA";
             btnEnviar.disabled = false;
             btnEnviar.style.opacity = "1";
         }
-    });
+    }); 
 </script>
 </body>
 </html>

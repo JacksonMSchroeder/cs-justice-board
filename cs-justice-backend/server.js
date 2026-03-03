@@ -15,7 +15,6 @@ const upload = multer({
     limits: { fileSize: 25 * 1024 * 1024 } // Limite de 25MB
 });
 
-// helmet  permitir imagens, videos e audios
 app.use(helmet({
     contentSecurityPolicy: {
         directives: {
@@ -23,9 +22,9 @@ app.use(helmet({
             scriptSrc: ["'self'", "'unsafe-inline'"],
             styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
             fontSrc: ["'self'", "https://fonts.gstatic.com"],
-            imgSrc: ["'self'", "data:", "https://*.supabase.co", "https://avatars.steamstatic.com", "https://*.steampowered.com", "https://*.steamstatic.com"], 
-            mediaSrc: ["'self'", "https://*.supabase.co", "data:"], // <--- LIBERA VÍDEO E ÁUDIO
-            connectSrc: ["'self'", "https://*.supabase.co"], 
+            imgSrc: ["'self'", "data:", "https://*.supabase.co", "https://avatars.steamstatic.com", "https://*.steampowered.com", "https://*.steamstatic.com", "https://community.cloudflare.steamstatic.com"], 
+            mediaSrc: ["'self'", "https://*.supabase.co", "data:"],
+            connectSrc: ["'self'", "https://*.supabase.co", "https://cs-justice-board.onrender.com"], 
         },
     },
 }));
@@ -127,6 +126,7 @@ app.post('/api/reports', upload.single('arquivo'), async (req, res) => {
         console.error("Erro POST:", error.message);
         res.status(500).json({ error: "Erro ao salvar denúncia" });
     }
+    
 });
 
 // --- FRONT-END ---
