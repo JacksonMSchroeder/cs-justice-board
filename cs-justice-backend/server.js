@@ -24,7 +24,7 @@ app.use(helmet({
             fontSrc: ["'self'", "https://fonts.gstatic.com"],
             imgSrc: ["'self'", "data:", "https://*.supabase.co", "https://avatars.steamstatic.com", "https://*.steampowered.com", "https://*.steamstatic.com", "https://community.cloudflare.steamstatic.com"], 
             mediaSrc: ["'self'", "https://*.supabase.co", "data:"],
-            connectSrc: ["'self'", "https://*.supabase.co", "https://cs-justice-board.onrender.com"], 
+            connectSrc: ["'self'", "https://*.supabase.co", "http://localhost:5000", "ws://localhost:*"],
         },
     },
 }));
@@ -56,41 +56,71 @@ app.get('/api/reports', async (req, res) => {
 // ROTA POST 
 app.post('/api/reports', upload.single('arquivo'), async (req, res) => { 
     try {
+       
         const { offender_steam_id, description, reporter } = req.body;
-        const file = req.file; // arquivo
+        const file = req.file;
         const STEAM_API_KEY = process.env.STEAM_API_KEY;
-        
-        let finalEvidenceUrl = null;
 
-        // 1. SE HOUVER ARQUIVO, FAZ UPLOAD PRO STORAGE
+        if (!offender_steam_id) {
+            return res.status(400).json({ error: "Steam ID ou URL é obrigatório." });
+        }
+
+        
+        let inputSteam = offender_steam_id.trim();
+        
+      
+        if (inputSteam.endsWith('/')) inputSteam = inputSteam.slice(0, -1);
+
+        let finalSteamID = inputSteam;
+
+       
+        if (inputSteam.includes('steamcommunity.com')) {
+            if (inputSteam.includes('/id/')) {
+                finalSteamID = inputSteam.split('/id/')[1];
+            } else if (inputSteam.includes('/profiles/')) {
+                finalSteamID = inputSteam.split('/profiles/')[1];
+            }
+        }
+
+        // PARA O URL
+        if (isNaN(finalSteamID)) {
+            try {
+                const resResolve = await axios.get(`http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=${STEAM_API_KEY}&vanityurl=${finalSteamID}`);
+                
+                if (resResolve.data.response.success === 1) {
+                    finalSteamID = resResolve.data.response.steamid;
+                } else {
+                    return res.status(400).json({ error: "Perfil personalizado da Steam não encontrado." });
+                }
+            } catch (err) {
+                console.error("Erro ResolveVanity:", err.message);
+                return res.status(500).json({ error: "Erro ao consultar a Valve para resolver URL." });
+            }
+        }
+
+        // MIDIA PARA O SUPA
+        let finalEvidenceUrl = null;
         if (file) {
-            const fileName = `${Date.now()}-${file.originalname}`;
+            const fileName = `${Date.now()}-${file.originalname.replace(/\s+/g, '_')}`;
             const { data: storageData, error: storageError } = await supabase.storage
-                .from('evidencias') // storage
-                .upload(fileName, file.buffer, {
-                    contentType: file.mimetype,
-                    upsert: false
-                });
+                .from('evidencias')
+                .upload(fileName, file.buffer, { contentType: file.mimetype, upsert: false });
 
             if (storageError) throw storageError;
 
-            //  link 
-            const { data: urlData } = supabase.storage
-                .from('evidencias')
-                .getPublicUrl(fileName);
-            
+            const { data: urlData } = supabase.storage.from('evidencias').getPublicUrl(fileName);
             finalEvidenceUrl = urlData.publicUrl;
         }
 
-        // NOME, AVATAR E BANS
+        // BUSCA INFO DO PERFIL E BANIMENTOS
         let offender_name = "Não Identificado";
         let avatarsteam = "https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg";
         let vac_status = "Limpa";
 
         try {
             const [resSteam, resBans] = await Promise.all([
-                axios.get(`http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${STEAM_API_KEY}&steamids=${offender_steam_id}`),
-                axios.get(`http://api.steampowered.com/ISteamUser/GetPlayerBans/v1/?key=${STEAM_API_KEY}&steamids=${offender_steam_id}`)
+                axios.get(`http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${STEAM_API_KEY}&steamids=${finalSteamID}`),
+                axios.get(`http://api.steampowered.com/ISteamUser/GetPlayerBans/v1/?key=${STEAM_API_KEY}&steamids=${finalSteamID}`)
             ]);
 
             const player = resSteam.data.response.players[0];
@@ -103,16 +133,18 @@ app.post('/api/reports', upload.single('arquivo'), async (req, res) => {
             if (banData && (banData.VACBanned || banData.NumberOfGameBans > 0)) {
                 vac_status = "Banido";
             }
-        } catch (e) { console.error("Erro na comunicação com a API da Valve"); }
+        } catch (e) { 
+            console.error("Erro Valve API (Summaries/Bans):", e.message); 
+        }
 
-        // 'reports'
+        //SALVA NO BANCO
         const { error: dbError } = await supabase
             .from('reports')
             .insert([{ 
-                offender_steam_id, 
+                offender_steam_id: finalSteamID, 
                 description, 
-                evidence_url: finalEvidenceUrl, // link arq
-                reporter, 
+                evidence_url: finalEvidenceUrl, 
+                reporter: reporter || "Anônimo", 
                 offender_name,
                 avatarsteam,
                 vac_status, 
@@ -123,10 +155,9 @@ app.post('/api/reports', upload.single('arquivo'), async (req, res) => {
         res.status(201).json({ success: true });
 
     } catch (error) {
-        console.error("Erro POST:", error.message);
-        res.status(500).json({ error: "Erro ao salvar denúncia" });
+        console.error("Erro Crítico no POST:", error.message);
+        res.status(500).json({ error: "Erro interno ao processar denúncia." });
     }
-    
 });
 
 // --- FRONT-END ---
