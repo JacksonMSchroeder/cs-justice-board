@@ -12,6 +12,9 @@ const SteamStrategy = require('passport-steam').Strategy;
 
 const app = express();
 
+// --- AJUSTE PARA DEPLOY (RENDER/HTTPS) ---
+app.set('trust proxy', 1); // Essencial para o Express aceitar o HTTPS do Render
+
 // --- TESTE DE AMBIENTE ---
 console.log("------------------------------------------");
 console.log("SISTEMA DE CHECAGEM DE CHAVES:");
@@ -19,13 +22,13 @@ console.log("SUPABASE URL:", process.env.SUPABASE_URL ? "CONFIGURADO ✅" : "FAL
 console.log("STEAM API KEY:", process.env.STEAM_API_KEY ? "CONFIGURADA ✅" : "FALTANDO ❌");
 console.log("------------------------------------------");
 
-//  MULTER 
+// MULTER 
 const upload = multer({ 
     storage: multer.memoryStorage(),
     limits: { fileSize: 25 * 1024 * 1024 } 
 });
 
-//  HELMET 
+// HELMET (Ajustado para permitir as imagens e scripts necessários)
 app.use(helmet({
     contentSecurityPolicy: {
         directives: {
@@ -35,23 +38,24 @@ app.use(helmet({
             fontSrc: ["'self'", "https://fonts.gstatic.com"],
             imgSrc: ["'self'", "data:", "https://*.supabase.co", "https://avatars.steamstatic.com", "https://*.steampowered.com", "https://*.steamstatic.com", "https://community.cloudflare.steamstatic.com"], 
             mediaSrc: ["'self'", "https://*.supabase.co", "data:"],
-            connectSrc: ["'self'", "https://*.supabase.co", "http://localhost:5000", "ws://localhost:*"],
-            formAction: ["'self'", "https://steamcommunity.com/openid/login"],
+            connectSrc: ["'self'", "https://*.supabase.co", "'self'", "https://api.steampowered.com"],
+            formAction: ["'self'", "https://steamcommunity.com"],
             upgradeInsecureRequests: null,
         },
     },
     crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" }
 }));
 
-// --- CONFIG DE SESSÃO (ESSENCIAL PARA PASSPORT) ---
+// --- CONFIG DE SESSÃO AJUSTADA PARA O RENDER ---
 app.use(session({
     secret: 'justica_cs2_secret_key', 
     resave: false,
     saveUninitialized: false,
+    proxy: true, // Confia no proxy do Render para o cookie de sessão
     cookie: { 
         maxAge: 24 * 60 * 60 * 1000, 
-        secure: false, 
-        sameSite: 'lax'
+        secure: true,   // Obrigatório true para sites com HTTPS (Render)
+        sameSite: 'none' // Necessário para o redirecionamento externo da Steam funcionar
     }
 }));
 
@@ -71,8 +75,8 @@ passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((obj, done) => done(null, obj));
 
 passport.use(new SteamStrategy({
-    returnURL: 'https://cs-justice-board.onrender.com/auth/steam/return',
-    realm: 'https://cs-justice-board.onrender.com/',
+    returnURL: 'https://cs-justice-board.onrender.com',
+    realm: 'https://cs-justice-board.onrender.com',
     apiKey: process.env.STEAM_API_KEY
   },
   (identifier, profile, done) => {
@@ -115,7 +119,7 @@ app.get('/logout', (req, res) => {
     });
 });
 
-//  API REPORTS lista
+// API REPORTS lista
 app.get('/api/reports', async (req, res) => {
     try {
         const { data, error } = await supabase
@@ -130,7 +134,7 @@ app.get('/api/reports', async (req, res) => {
     }
 });
 
-// API REPORTS 
+// API REPORTS POST
 app.post('/api/reports', upload.single('arquivo'), async (req, res) => { 
     try {
         const { offender_steam_id, description, reporter } = req.body;
@@ -142,21 +146,20 @@ app.post('/api/reports', upload.single('arquivo'), async (req, res) => {
         let inputSteam = offender_steam_id.trim();
         let finalSteamID = inputSteam;
 
-        //  URL 
+        // Resolução de URL Steam
         if (inputSteam.includes('steamcommunity.com') || isNaN(inputSteam)) {
             let vanityPart = inputSteam;
             if (inputSteam.includes('/id/')) vanityPart = inputSteam.split('/id/')[1].split('/')[0];
             else if (inputSteam.includes('/profiles/')) finalSteamID = inputSteam.split('/profiles/')[1].split('/')[0];
 
             if (isNaN(finalSteamID)) {
-                const resResolve = await axios.get(`http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=${KEY}&vanityurl=${vanityPart}`);
+                const resResolve = await axios.get(`http://api.steampowered.com{KEY}&vanityurl=${vanityPart}`);
                 if (resResolve.data.response.success === 1) {
                     finalSteamID = resResolve.data.response.steamid;
                 }
             }
         }
 
-       
         let finalEvidenceUrl = null;
         if (file) {
             const fileName = `${Date.now()}-${file.originalname.replace(/\s+/g, '_')}`;
@@ -168,15 +171,14 @@ app.post('/api/reports', upload.single('arquivo'), async (req, res) => {
             finalEvidenceUrl = supabase.storage.from('evidencias').getPublicUrl(fileName).data.publicUrl;
         }
 
-        
         let offender_name = "Não Identificado";
-        let avatarsteam = "https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg";
+        let avatarsteam = "https://avatars.steamstatic.com";
         let vac_status = "Limpa";
 
         try {
             const [resSteam, resBans] = await Promise.all([
-                axios.get(`http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${KEY}&steamids=${finalSteamID}`),
-                axios.get(`http://api.steampowered.com/ISteamUser/GetPlayerBans/v1/?key=${KEY}&steamids=${finalSteamID}`)
+                axios.get(`http://api.steampowered.com{KEY}&steamids=${finalSteamID}`),
+                axios.get(`http://api.steampowered.com{KEY}&steamids=${finalSteamID}`)
             ]);
 
             const player = resSteam.data.response.players[0];
@@ -191,7 +193,6 @@ app.post('/api/reports', upload.single('arquivo'), async (req, res) => {
             }
         } catch (e) { console.error("Erro Valve API:", e.message); }
 
-        // Salvar no Banco
         const { error: dbError } = await supabase
             .from('reports')
             .insert([{ 
@@ -222,5 +223,5 @@ app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'static', 'index.ht
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`rodou aqui isso?? ${PORT}`);
+    console.log(`🚀 Servidor rodando na porta ${PORT}`);
 });
