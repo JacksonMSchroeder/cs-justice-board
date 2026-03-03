@@ -10,16 +10,18 @@
 <body>
     <nav class="navbar">
         <div class="nav-links">
-            <a href="index.html" class="nav-item">Manifesto</a>
-            <a href="mural.html" class="nav-item">Mural</a>
-            <a href="lei.html" class="nav-item">Lei</a>
-            <a href="contato.html" class="nav-item">Contato</a>
+            <a href="/" class="nav-item">Manifesto</a>
+            <a href="/mural" class="nav-item">Mural</a>
+            <a href="/lei" class="nav-item">Lei</a>
+            <a href="/contato" class="nav-item">Contato</a>
         </div>
-        <div class="nav-auth"><a href="#" class="login-btn">LOGIN STEAM</a></div>
+        <div id="auth-section" class="nav-auth">
+            <a href="/auth/steam" class="login-btn">LOGIN STEAM</a>
+        </div>
     </nav>
 
     <div class="mural-actions">
-        <a href="contato.html" class="btn-reportar">
+        <a href="/contato" class="btn-reportar">
             <span class="icon">⚠️</span> NEW REPORT
         </a>
     </div>
@@ -28,9 +30,9 @@
         <h1>MURAL DOS <span class="orange">CRIMINOSOS</span></h1>
     </header>
 
-    <div style="max-width: 800px; margin: 0 auto;">
+    <div style="max-width: 800px; margin: 0 auto; padding: 0 20px;">
         <input type="text" id="steamSearch" placeholder="Buscar por Steam ID ou Nome..."
-               style="width: 100%; padding: 12px; background: rgba(0,0,0,0.5); border: 1px solid #333; color: white; font-family: inherit;">
+               style="width: 100%; padding: 12px; background: rgba(0,0,0,0.5); border: 1px solid #333; color: white; font-family: inherit; border-radius: 4px;">
     </div>
     
     <main class="content-box">
@@ -62,26 +64,22 @@
         const container = document.getElementById('mural-logs');
         try {
             const resposta = await fetch('/api/reports');
-            if (!resposta.ok) throw new Error('Falha no servidor');
+            if (!resposta.ok) throw new Error();
             todosOsDados = await resposta.json(); 
             dadosFiltrados = [...todosOsDados]; 
             renderizarPagina(1);
         } catch (erro) {
-            console.error(erro);
-            container.innerHTML = '<p style="color:red; text-align:center;">ERRO AO CONECTAR COM O TERMINAL.</p>';
+            if (container) container.innerHTML = '<p style="color:#ff4444; text-align:center;">🚨 ERRO DE CONEXÃO COM O TERMINAL.</p>';
         }
     }
 
     function filterReports() { 
         const termo = document.getElementById('steamSearch').value.toLowerCase();
-        
         dadosFiltrados = todosOsDados.filter(item => {
-            const steamId = String(item.offender_steam_id || "").toLowerCase();
-            const nome = String(item.offender_name || "").toLowerCase();
-            const desc = String(item.description || "").toLowerCase();
-            return steamId.includes(termo) || nome.includes(termo) || desc.includes(termo);
+            return String(item.offender_steam_id || "").toLowerCase().includes(termo) || 
+                   String(item.offender_name || "").toLowerCase().includes(termo) || 
+                   String(item.description || "").toLowerCase().includes(termo);
         });
-
         paginaAtual = 1;
         renderizarPagina(1);
     }
@@ -89,73 +87,85 @@
     function renderizarPagina(pagina) {
         paginaAtual = pagina;
         const inicio = (pagina - 1) * itensPorPagina;
-        const fim = inicio + itensPorPagina;
-        renderizarCards(dadosFiltrados.slice(inicio, fim));
+        renderizarCards(dadosFiltrados.slice(inicio, inicio + itensPorPagina));
         atualizarControles();
+    }
+
+    function atualizarControles() {
+        const total = Math.ceil(dadosFiltrados.length / itensPorPagina);
+        const pagElement = document.getElementById('pag-number');
+        if (pagElement) pagElement.innerText = `PÁGINA ${paginaAtual} DE ${total || 1}`;
+        document.getElementById('prevBtn').disabled = (paginaAtual === 1);
+        document.getElementById('nextBtn').disabled = (paginaAtual >= total || total === 0);
     }
 
     function renderizarCards(lista) {
         const container = document.getElementById('mural-logs');
-        container.innerHTML = '';
-
-        if (lista.length === 0) {
-            container.innerHTML = '<p style="color:gray; text-align:center;">NENHUM REGISTRO ENCONTRADO.</p>';
-            return;
-        }
+        if (!container) return;
+        container.innerHTML = lista.length === 0 ? '<p style="color:#666; text-align:center; padding: 20px;">[ VAZIO ]</p>' : '';
 
         lista.forEach(item => {
-            const isBanido = item.vac_status === "Banido"; 
-            const corStatus = isBanido ? '#ff4444' : '#00ff00';
-            const textoStatus = isBanido ? '🚨 CONTA BANIDA (VAC/GAME)' : '✅ CONTA LIMPA';
-            
-           const urlMidia = item.evidence_url || item.image;
-           console.log("Link da evidência encontrado:", urlMidia);
-
-            let mediaHTML = '';
-            if (urlMidia) {
-                const urlLower = urlMidia.toLowerCase();
-                if (urlLower.match(/\.(mp4|webm|mov)$/)) {
-                    mediaHTML = `<video controls style="width:100%; margin-top:10px; border-radius:4px;"><source src="${urlMidia}"></video>`;
-                } else if (urlLower.match(/\.(mp3|wav|m4a|ogg)$/)) {
-                    mediaHTML = `<audio controls style="width:100%; margin-top:10px;"><source src="${urlMidia}"></audio>`;
+            const isBan = item.vac_status === "Banido"; 
+            const cor = isBan ? '#ff4444' : '#00ff00';
+            let media = '';
+            if (item.evidence_url) {
+                const url = item.evidence_url.toLowerCase();
+                if (url.match(/\.(mp4|webm|mov)$/)) {
+                    media = `<video controls style="width:100%; margin-top:10px; border-radius:4px;"><source src="${item.evidence_url}"></video>`;
+                } else if (url.match(/\.(mp3|wav|m4a|ogg)$/)) {
+                    media = `<audio controls style="width:100%; margin-top:10px;"><source src="${item.evidence_url}"></audio>`;
                 } else {
-                    mediaHTML = `<img src="${urlMidia}" style="width:100%; margin-top:10px; border-radius:4px; border:1px solid #333;" onclick="window.open(this.src)">`;
+                    media = `<img src="${item.evidence_url}" style="width:100%; margin-top:10px; border-radius:4px; cursor:pointer;" onclick="window.open(this.src)">`;
                 }
             }
 
             const card = document.createElement('div');
-            card.className = 'log-entry'; 
+            card.className = 'log-entry';
+            card.style.cssText = "background:rgba(10,10,10,0.8); border:1px solid #222; padding:15px; margin-bottom:20px; border-radius:8px;";
             card.innerHTML = `
                 <div style="display:flex; align-items:center; gap:15px; margin-bottom:12px;">
-                    <img src="${item.avatarsteam || 'https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg'}" 
-                         style="width:45px; height:45px; border-radius:4px; border:2px solid ${corStatus};">
+                    <img src="${item.avatarsteam}" style="width:45px; height:45px; border:2px solid ${cor}; border-radius:4px;">
                     <div>
-                        <span class="orange" style="font-weight:bold;">${item.offender_name || 'IDENTIDADE OCULTA'}</span>
-                        <div style="font-size:0.7rem; color:#888;">ID: ${item.offender_steam_id}</div>
-                        <span style="font-size:0.65rem; font-weight:bold; color:${corStatus};">${textoStatus}</span>
+                        <span style="color:#ff8c00; font-weight:bold;">${item.offender_name}</span>
+                        <div style="font-size:0.7rem; color:#666;">ID: ${item.offender_steam_id}</div>
+                        <span style="font-size:0.7rem; color:${cor}; font-weight:bold;">${isBan ? '🚨 BANIDO' : '✅ LIMPO'}</span>
                     </div>
                 </div>
-                <p style="color:#eee; border-left:2px solid #333; padding-left:10px;">${item.description}</p>
-                ${mediaHTML}
-                <hr style="border:0.5px solid #222; margin:15px 0;">
+                <p style="color:#ccc; border-left:3px solid #ff8c00; padding-left:10px; font-size:0.9rem;">${item.description}</p>
+                ${media}
             `;
             container.appendChild(card);
         });
     }
 
-    function atualizarControles() {
-        const totalPaginas = Math.ceil(dadosFiltrados.length / itensPorPagina);
-        document.getElementById('pag-number').innerText = `PÁGINA ${paginaAtual} DE ${totalPaginas || 1}`;
-        document.getElementById('prevBtn').disabled = (paginaAtual === 1);
-        document.getElementById('nextBtn').disabled = (paginaAtual >= totalPaginas || totalPaginas === 0);
+    async function checkLoginStatus() {
+        try {
+            const res = await fetch('/api/user-status');
+            const data = await res.json();
+            const authSection = document.getElementById('auth-section');
+            if (data.logged && authSection) {
+                authSection.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:10px; background:rgba(0,0,0,0.6); padding:5px 12px; border:1px solid #ff8c00; border-radius:4px;">
+                        <img src="${data.user.avatar}" style="width:25px; height:25px; border-radius:2px; border: 1px solid #ff8c00;">
+                        <span style="color:#fff; font-size:0.85rem; font-weight:bold;">${data.user.name}</span>
+                        <a href="/logout" style="color:#ff4444; font-size:0.7rem; text-decoration:none; margin-left:8px; border-left:1px solid #333; padding-left:8px; font-weight:bold;">SAIR</a>
+                    </div>`;
+            }
+        } catch (e) {
+            console.error("Erro ao verificar login", e);
+        }
     }
 
-    // Eventos (EventListener para não violar o Helmet)
-    document.getElementById('steamSearch').addEventListener('input', filterReports);
-    document.getElementById('prevBtn').onclick = () => renderizarPagina(paginaAtual - 1);
-    document.getElementById('nextBtn').onclick = () => renderizarPagina(paginaAtual + 1);
-
-    window.addEventListener('DOMContentLoaded', carregarMural);
+    window.addEventListener('DOMContentLoaded', () => {
+        carregarMural();      
+        checkLoginStatus();   
+        document.getElementById('steamSearch').addEventListener('input', filterReports);
+        document.getElementById('prevBtn').onclick = () => { if (paginaAtual > 1) renderizarPagina(paginaAtual - 1); };
+        document.getElementById('nextBtn').onclick = () => { 
+            const total = Math.ceil(dadosFiltrados.length / itensPorPagina);
+            if (paginaAtual < total) renderizarPagina(paginaAtual + 1); 
+        };
+    });
 </script>
 </body>
 </html>

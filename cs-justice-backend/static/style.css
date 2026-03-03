@@ -24,7 +24,7 @@ body {
 }
 
 /* 
-   2. NAVBAR (MENU SUPERIOR)
+   2. MENU SUPERIOR
     */
 .navbar {
     display: flex;
@@ -70,6 +70,43 @@ body {
     font-size: 0.8rem;
     border-radius: 3px;
     transition: background 0.2s;
+}
+.nav-auth div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 5px 12px;
+    border-radius: 4px;
+    border: 1px solid #ff9d00;
+    transition: all 0.3s ease;
+}
+
+.nav-auth img {
+    width: 28px;
+    height: 28px;
+    border-radius: 2px;
+    border: 1px solid #ff9d00;
+}
+
+.nav-auth span {
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: bold;
+}
+
+.nav-auth a[href="/logout"] {
+    color: #ff4444 !important;
+    font-size: 0.7rem;
+    text-decoration: none;
+    margin-left: 8px;
+    border-left: 1px solid #333;
+    padding-left: 8px;
+    text-transform: uppercase;
+}
+
+.nav-auth a[href="/logout"]:hover {
+    color: #fff !important;
 }
 
 /* 
@@ -226,7 +263,7 @@ body {
 }
 
 /* 
-   4. MURAL COMPLETO (PÁGINA mural.html - LISTA)
+   MURAL COMPLETO (PÁGINA mural.html - LISTA)
     */
 .console-box {
     background: rgba(0, 0, 0, 0.8);
@@ -251,7 +288,7 @@ body {
 .log-msg { color: #e0e0e0; }
 
 /* 
-   5. MURAL DESTAQUE (PÁGINA index - 2 QUADRADOS)
+  MURAL DESTAQUE (PÁGINA index - 3 QUADRADOS)
     */
 .mural-destaque {
     margin: 50px auto;
@@ -259,7 +296,7 @@ body {
 
 }
 
-/* Container das ações no Mural */
+/* container das ações no Mural */
 .mural-actions {
     display: flex;
     max-width: 800px;
@@ -270,7 +307,7 @@ body {
 
 /* customização btn reporta */
 .btn-reportar {
-    animation: glow-pulse 2s infinite; /* efeito teste */
+    animation: glow-pulse 2s infinite; 
     display: inline-flex;
     align-items: center;
     gap: 10px;
@@ -302,14 +339,14 @@ body {
 
 textarea {
     width: 100%;
-    min-height: 120px; /* para altura */
+    min-height: 120px; 
     background: rgba(0, 0, 0, 0.5);
     border: 1px solid #333;
     color: white;
     padding: 12px;
     border-radius: 4px;
     font-family: 'Exo 2', sans-serif;
-    resize: vertical; /* para aumentar tamanho*/
+    resize: vertical; 
 }
 
 textarea:focus {
@@ -317,7 +354,7 @@ textarea:focus {
     outline: none;
 }
 
-/* efeito para o btn do submite report no mutal */
+/* efeito para o btn do submite report no mural */
 @keyframes glow-pulse {
     0% { box-shadow: 0 0 5px rgba(255, 157, 0, 0.4); }
     50% { box-shadow: 0 0 20px rgba(255, 157, 0, 0.8); }
@@ -371,15 +408,18 @@ textarea:focus {
 }
 
 /* mobile */
-@media (max-width: 768px) {
-    .mural-actions {
-        text-align: center;
-    }
+@media (max-width: 600px) {
+    .navbar { padding: 0 10px; }
+    .nav-links { gap: 10px; }
+    .nav-item { font-size: 0.7rem; }
+    .grid-contato { flex-direction: column; padding: 10px; }
+}
+    
     .btn-reportar {
         width: 100%; /* facilitar o touchscreen */
         justify-content: center;
     }
-}
+
 
 .cards-container {
     display: flex;
@@ -641,13 +681,3 @@ video, img {
     display: block;
     margin: 10px 0;
 }
-/* custamizaçao dos card              INICIALMENTE DESCARTADO
-.log-entry {
-    transition: all 0.3s ease;
-    border-left: 3px solid transparent;
-}
-.log-entry:hover {
-    background: rgba(255, 140, 0, 0.05);
-    border-left: 3px solid #ff8c00;
-    transform: translateX(5px);
-} */

@@ -1,20 +1,31 @@
+require('dotenv').config();
 const express = require('express');
 const { createClient } = require('@supabase/supabase-js');
 const cors = require('cors');
-const helmet = require('helmet'); //segurança
+const helmet = require('helmet');
 const path = require('path');
 const axios = require('axios'); 
-const multer = require('multer'); //audio e video 
-require('dotenv').config();
+const multer = require('multer'); 
+const session = require('express-session');
+const passport = require('passport');
+const SteamStrategy = require('passport-steam').Strategy;
 
 const app = express();
 
+// --- TESTE DE AMBIENTE ---
+console.log("------------------------------------------");
+console.log("SISTEMA DE CHECAGEM DE CHAVES:");
+console.log("SUPABASE URL:", process.env.SUPABASE_URL ? "CONFIGURADO ✅" : "FALTANDO ❌");
+console.log("STEAM API KEY:", process.env.STEAM_API_KEY ? "CONFIGURADA ✅" : "FALTANDO ❌");
+console.log("------------------------------------------");
 
+//  MULTER 
 const upload = multer({ 
     storage: multer.memoryStorage(),
-    limits: { fileSize: 25 * 1024 * 1024 } // Limite de 25MB
+    limits: { fileSize: 25 * 1024 * 1024 } 
 });
 
+//  HELMET 
 app.use(helmet({
     contentSecurityPolicy: {
         directives: {
@@ -25,19 +36,86 @@ app.use(helmet({
             imgSrc: ["'self'", "data:", "https://*.supabase.co", "https://avatars.steamstatic.com", "https://*.steampowered.com", "https://*.steamstatic.com", "https://community.cloudflare.steamstatic.com"], 
             mediaSrc: ["'self'", "https://*.supabase.co", "data:"],
             connectSrc: ["'self'", "https://*.supabase.co", "http://localhost:5000", "ws://localhost:*"],
+            formAction: ["'self'", "https://steamcommunity.com/openid/login"],
+            upgradeInsecureRequests: null,
         },
     },
+    crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" }
+}));
+
+// --- CONFIG DE SESSÃO (ESSENCIAL PARA PASSPORT) ---
+app.use(session({
+    secret: 'justica_cs2_secret_key', 
+    resave: false,
+    saveUninitialized: false,
+    cookie: { 
+        maxAge: 24 * 60 * 60 * 1000, 
+        secure: false, 
+        sameSite: 'lax'
+    }
 }));
 
 app.use(cors());
-app.use(express.json({ limit: '50mb' })); 
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
-app.use(express.static(path.join(__dirname, 'static')))
+app.use(express.json()); 
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'static')));
 
+// Banco de dados
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
-// ROTAS DA API
+// --- CONFIGURAÇÃO PASSPORT STEAM ---
+app.use(passport.initialize());
+app.use(passport.session());
 
+passport.serializeUser((user, done) => done(null, user));
+passport.deserializeUser((obj, done) => done(null, obj));
+
+passport.use(new SteamStrategy({
+    returnURL: 'https://cs-justice-board.onrender.com/auth/steam/return',
+    realm: 'https://cs-justice-board.onrender.com/',
+    apiKey: process.env.STEAM_API_KEY
+  },
+  (identifier, profile, done) => {
+    process.nextTick(() => {
+        profile.identifier = identifier;
+        return done(null, profile);
+    });
+  }
+));
+
+// --- ROTAS DE AUTENTICAÇÃO ---
+app.get('/auth/steam', passport.authenticate('steam'));
+
+app.get('/auth/steam/return', 
+    passport.authenticate('steam', { failureRedirect: '/' }), 
+    (req, res) => {
+        console.log("🚀 LOGIN SUCESSO:", req.user.displayName);
+        res.redirect('/'); 
+    }
+);
+
+app.get('/api/user-status', (req, res) => {
+    if (req.isAuthenticated()) {
+        res.json({ 
+            logged: true, 
+            user: {
+                name: req.user.displayName,
+                avatar: req.user._json.avatarfull,
+                steamid: req.user.id
+            } 
+        });
+    } else {
+        res.json({ logged: false });
+    }
+});
+
+app.get('/logout', (req, res) => {
+    req.logout(() => {
+        res.redirect('/');
+    });
+});
+
+//  API REPORTS lista
 app.get('/api/reports', async (req, res) => {
     try {
         const { data, error } = await supabase
@@ -48,79 +126,57 @@ app.get('/api/reports', async (req, res) => {
         if (error) throw error;
         res.status(200).json(data);
     } catch (error) {
-        console.error("Erro GET:", error.message);
         res.status(500).json({ error: "Erro ao buscar dados" });
     }
 });
 
-// ROTA POST 
+// API REPORTS 
 app.post('/api/reports', upload.single('arquivo'), async (req, res) => { 
     try {
-       
         const { offender_steam_id, description, reporter } = req.body;
         const file = req.file;
-        const STEAM_API_KEY = process.env.STEAM_API_KEY;
+        const KEY = process.env.STEAM_API_KEY;
 
-        if (!offender_steam_id) {
-            return res.status(400).json({ error: "Steam ID ou URL é obrigatório." });
-        }
+        if (!offender_steam_id) return res.status(400).json({ error: "Steam ID obrigatório." });
 
-        
         let inputSteam = offender_steam_id.trim();
-        
-      
-        if (inputSteam.endsWith('/')) inputSteam = inputSteam.slice(0, -1);
-
         let finalSteamID = inputSteam;
 
-       
-        if (inputSteam.includes('steamcommunity.com')) {
-            if (inputSteam.includes('/id/')) {
-                finalSteamID = inputSteam.split('/id/')[1];
-            } else if (inputSteam.includes('/profiles/')) {
-                finalSteamID = inputSteam.split('/profiles/')[1];
-            }
-        }
+        //  URL 
+        if (inputSteam.includes('steamcommunity.com') || isNaN(inputSteam)) {
+            let vanityPart = inputSteam;
+            if (inputSteam.includes('/id/')) vanityPart = inputSteam.split('/id/')[1].split('/')[0];
+            else if (inputSteam.includes('/profiles/')) finalSteamID = inputSteam.split('/profiles/')[1].split('/')[0];
 
-        // PARA O URL
-        if (isNaN(finalSteamID)) {
-            try {
-                const resResolve = await axios.get(`http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=${STEAM_API_KEY}&vanityurl=${finalSteamID}`);
-                
+            if (isNaN(finalSteamID)) {
+                const resResolve = await axios.get(`http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=${KEY}&vanityurl=${vanityPart}`);
                 if (resResolve.data.response.success === 1) {
                     finalSteamID = resResolve.data.response.steamid;
-                } else {
-                    return res.status(400).json({ error: "Perfil personalizado da Steam não encontrado." });
                 }
-            } catch (err) {
-                console.error("Erro ResolveVanity:", err.message);
-                return res.status(500).json({ error: "Erro ao consultar a Valve para resolver URL." });
             }
         }
 
-        // MIDIA PARA O SUPA
+       
         let finalEvidenceUrl = null;
         if (file) {
             const fileName = `${Date.now()}-${file.originalname.replace(/\s+/g, '_')}`;
             const { data: storageData, error: storageError } = await supabase.storage
                 .from('evidencias')
-                .upload(fileName, file.buffer, { contentType: file.mimetype, upsert: false });
-
+                .upload(fileName, file.buffer, { contentType: file.mimetype });
+            
             if (storageError) throw storageError;
-
-            const { data: urlData } = supabase.storage.from('evidencias').getPublicUrl(fileName);
-            finalEvidenceUrl = urlData.publicUrl;
+            finalEvidenceUrl = supabase.storage.from('evidencias').getPublicUrl(fileName).data.publicUrl;
         }
 
-        // BUSCA INFO DO PERFIL E BANIMENTOS
+        
         let offender_name = "Não Identificado";
         let avatarsteam = "https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg";
         let vac_status = "Limpa";
 
         try {
             const [resSteam, resBans] = await Promise.all([
-                axios.get(`http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${STEAM_API_KEY}&steamids=${finalSteamID}`),
-                axios.get(`http://api.steampowered.com/ISteamUser/GetPlayerBans/v1/?key=${STEAM_API_KEY}&steamids=${finalSteamID}`)
+                axios.get(`http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${KEY}&steamids=${finalSteamID}`),
+                axios.get(`http://api.steampowered.com/ISteamUser/GetPlayerBans/v1/?key=${KEY}&steamids=${finalSteamID}`)
             ]);
 
             const player = resSteam.data.response.players[0];
@@ -133,11 +189,9 @@ app.post('/api/reports', upload.single('arquivo'), async (req, res) => {
             if (banData && (banData.VACBanned || banData.NumberOfGameBans > 0)) {
                 vac_status = "Banido";
             }
-        } catch (e) { 
-            console.error("Erro Valve API (Summaries/Bans):", e.message); 
-        }
+        } catch (e) { console.error("Erro Valve API:", e.message); }
 
-        //SALVA NO BANCO
+        // Salvar no Banco
         const { error: dbError } = await supabase
             .from('reports')
             .insert([{ 
@@ -155,25 +209,18 @@ app.post('/api/reports', upload.single('arquivo'), async (req, res) => {
         res.status(201).json({ success: true });
 
     } catch (error) {
-        console.error("Erro Crítico no POST:", error.message);
-        res.status(500).json({ error: "Erro interno ao processar denúncia." });
+        console.error("Erro Crítico:", error.message);
+        res.status(500).json({ error: "Erro interno." });
     }
 });
 
-// --- FRONT-END ---
-app.use(express.static(path.join(__dirname, 'static')));
-
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'static', 'index.html')));
+// --- SERVIR FRONT-END ---
 app.get('/mural', (req, res) => res.sendFile(path.join(__dirname, 'static', 'mural.html')));
 app.get('/contato', (req, res) => res.sendFile(path.join(__dirname, 'static', 'contato.html')));
 app.get('/lei', (req, res) => res.sendFile(path.join(__dirname, 'static', 'lei.html')));
-
-app.get(/^\/(?!api).*/, (req, res) => res.sendFile(path.join(__dirname, 'static', 'index.html')));
+app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'static', 'index.html')));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`\n🚀 ==========================================`);
-    console.log(`   TERMINAL CS:JUSTIÇA ATIVO NA PORTA ${PORT}`);
-    console.log(`   PROCESSAMENTO DE MÍDIA: ATIVADO`);
-    console.log(`==========================================\n`);
+    console.log(`rodou aqui isso?? ${PORT}`);
 });
