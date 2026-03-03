@@ -29,7 +29,7 @@
     </header>
 
     <div style="max-width: 800px; margin: 0 auto;">
-        <input type="text" id="steamSearch" oninput="filterReports()" placeholder="Buscar por Steam ID ou Nome..."
+        <input type="text" id="steamSearch" placeholder="Buscar por Steam ID ou Nome..."
                style="width: 100%; padding: 12px; background: rgba(0,0,0,0.5); border: 1px solid #333; color: white; font-family: inherit;">
     </div>
     
@@ -53,68 +53,47 @@
     </footer>
 
     <script>
-
     let todosOsDados = []; 
     let dadosFiltrados = []; 
     let paginaAtual = 1;
     const itensPorPagina = 5;
 
-    // DADOS DO SERVIDOR
     async function carregarMural() {
         const container = document.getElementById('mural-logs');
-        container.innerHTML = '<p style="color:orange; text-align:center;">SINCRONIZANDO TERMINAL...</p>';
-
         try {
             const resposta = await fetch('/api/reports');
             if (!resposta.ok) throw new Error('Falha no servidor');
-            
             todosOsDados = await resposta.json(); 
-            dadosFiltrados = [...todosOsDados]; //  todos os dados 
+            dadosFiltrados = [...todosOsDados]; 
             renderizarPagina(1);
-
         } catch (erro) {
             console.error(erro);
             container.innerHTML = '<p style="color:red; text-align:center;">ERRO AO CONECTAR COM O TERMINAL.</p>';
         }
     }
 
-    // log filtro 
     function filterReports() { 
-        const input = document.getElementById('steamSearch');
-        if (!input) return;
+        const termo = document.getElementById('steamSearch').value.toLowerCase();
         
-        const termo = input.value.toLowerCase();
-
-        // filtra
         dadosFiltrados = todosOsDados.filter(item => {
-            const steamId = (item.offender_steam_id || "").toLowerCase();
-            const nome = (item.offender_name || "").toLowerCase();
-            const desc = (item.description || "").toLowerCase();
-
-            return steamId.includes(termo) || 
-                   nome.includes(termo) || 
-                   desc.includes(termo);
+            const steamId = String(item.offender_steam_id || "").toLowerCase();
+            const nome = String(item.offender_name || "").toLowerCase();
+            const desc = String(item.description || "").toLowerCase();
+            return steamId.includes(termo) || nome.includes(termo) || desc.includes(termo);
         });
 
-        // reset para a pag 1 e redesenha os cards na tela
         paginaAtual = 1;
         renderizarPagina(1);
     }
 
-    // control de pags
     function renderizarPagina(pagina) {
         paginaAtual = pagina;
         const inicio = (pagina - 1) * itensPorPagina;
         const fim = inicio + itensPorPagina;
-        
-        // para limitar o espaço de tela no filtro
-        const dadosPaginados = dadosFiltrados.slice(inicio, fim);
-
-        renderizarCards(dadosPaginados);
+        renderizarCards(dadosFiltrados.slice(inicio, fim));
         atualizarControles();
     }
 
-    // para os cards
     function renderizarCards(lista) {
         const container = document.getElementById('mural-logs');
         container.innerHTML = '';
@@ -125,20 +104,22 @@
         }
 
         lista.forEach(item => {
-            const isBanido = item.vac_status === true;
+            const isBanido = item.vac_status === "Banido"; 
             const corStatus = isBanido ? '#ff4444' : '#00ff00';
             const textoStatus = isBanido ? '🚨 CONTA BANIDA (VAC/GAME)' : '✅ CONTA LIMPA';
-            const urlMidia = item.evidence_url || item.image;
+            
+           const urlMidia = item.evidence_url || item.image;
+           console.log("Link da evidência encontrado:", urlMidia);
 
             let mediaHTML = '';
             if (urlMidia) {
                 const urlLower = urlMidia.toLowerCase();
                 if (urlLower.match(/\.(mp4|webm|mov)$/)) {
-                    mediaHTML = `<div style="margin-top:10px;"><video controls preload="metadata" style="width:100%; border-radius:4px; border:1px solid #333; background:#000;"><source src="${urlMidia}"></video></div>`;
+                    mediaHTML = `<video controls style="width:100%; margin-top:10px; border-radius:4px;"><source src="${urlMidia}"></video>`;
                 } else if (urlLower.match(/\.(mp3|wav|m4a|ogg)$/)) {
-                    mediaHTML = `<div style="margin-top:10px; background:#111; padding:10px; border-radius:4px;"><audio controls style="width:100%; height:35px;"><source src="${urlMidia}"></audio></div>`;
+                    mediaHTML = `<audio controls style="width:100%; margin-top:10px;"><source src="${urlMidia}"></audio>`;
                 } else {
-                    mediaHTML = `<div class="log-image" style="margin-top:10px;"><img src="${urlMidia}" style="width:100%; border-radius:4px; border:1px solid #333; cursor:pointer;" onclick="window.open(this.src)"></div>`;
+                    mediaHTML = `<img src="${urlMidia}" style="width:100%; margin-top:10px; border-radius:4px; border:1px solid #333;" onclick="window.open(this.src)">`;
                 }
             }
 
@@ -149,12 +130,12 @@
                     <img src="${item.avatarsteam || 'https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg'}" 
                          style="width:45px; height:45px; border-radius:4px; border:2px solid ${corStatus};">
                     <div>
-                        <span class="orange" style="display:block; font-weight:bold;">${item.offender_name || 'IDENTIDADE OCULTA'}</span>
-                        <div style="font-size:0.7rem; color:#888;">[${new Date(item.created_at).toLocaleDateString('pt-BR')}] ID: ${item.offender_steam_id}</div>
+                        <span class="orange" style="font-weight:bold;">${item.offender_name || 'IDENTIDADE OCULTA'}</span>
+                        <div style="font-size:0.7rem; color:#888;">ID: ${item.offender_steam_id}</div>
                         <span style="font-size:0.65rem; font-weight:bold; color:${corStatus};">${textoStatus}</span>
                     </div>
                 </div>
-                <p style="margin:10px 0; color:#eee; border-left:2px solid #333; padding-left:10px;"><strong>DETALHES:</strong> ${item.description}</p>
+                <p style="color:#eee; border-left:2px solid #333; padding-left:10px;">${item.description}</p>
                 ${mediaHTML}
                 <hr style="border:0.5px solid #222; margin:15px 0;">
             `;
@@ -162,24 +143,19 @@
         });
     }
 
-    // btn att
     function atualizarControles() {
         const totalPaginas = Math.ceil(dadosFiltrados.length / itensPorPagina);
-        const pagNumber = document.getElementById('pag-number');
-        if (pagNumber) {
-            pagNumber.innerText = `PÁGINA ${paginaAtual} DE ${totalPaginas || 1}`;
-        }
-        
+        document.getElementById('pag-number').innerText = `PÁGINA ${paginaAtual} DE ${totalPaginas || 1}`;
         document.getElementById('prevBtn').disabled = (paginaAtual === 1);
         document.getElementById('nextBtn').disabled = (paginaAtual >= totalPaginas || totalPaginas === 0);
     }
 
-    // clicks
+    // Eventos (EventListener para não violar o Helmet)
+    document.getElementById('steamSearch').addEventListener('input', filterReports);
     document.getElementById('prevBtn').onclick = () => renderizarPagina(paginaAtual - 1);
     document.getElementById('nextBtn').onclick = () => renderizarPagina(paginaAtual + 1);
 
-    // INICIALIZAÇÃO
     window.addEventListener('DOMContentLoaded', carregarMural);
-    </script>>
+</script>
 </body>
 </html>

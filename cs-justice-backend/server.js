@@ -23,8 +23,8 @@ app.use(helmet({
             scriptSrc: ["'self'", "'unsafe-inline'"],
             styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
             fontSrc: ["'self'", "https://fonts.gstatic.com"],
-            imgSrc: ["'self'", "data:", "https://*.supabase.co", "https://avatars.steamstatic.com", "https://*.steampowered.com"], 
-            mediaSrc: ["'self'", "https://*.supabase.co"], // <--- LIBERA VÍDEO E ÁUDIO
+            imgSrc: ["'self'", "data:", "https://*.supabase.co", "https://avatars.steamstatic.com", "https://*.steampowered.com", "https://*.steamstatic.com"], 
+            mediaSrc: ["'self'", "https://*.supabase.co", "data:"], // <--- LIBERA VÍDEO E ÁUDIO
             connectSrc: ["'self'", "https://*.supabase.co"], 
         },
     },
@@ -37,7 +37,7 @@ app.use(express.static(path.join(__dirname, 'static')))
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
-// --- ROTAS DA API ---
+// ROTAS DA API
 
 app.get('/api/reports', async (req, res) => {
     try {

@@ -641,7 +641,7 @@ video, img {
     display: block;
     margin: 10px 0;
 }
-/* custamizaçao dos card */
+/* custamizaçao dos card              INICIALMENTE DESCARTADO
 .log-entry {
     transition: all 0.3s ease;
     border-left: 3px solid transparent;
@@ -650,4 +650,4 @@ video, img {
     background: rgba(255, 140, 0, 0.05);
     border-left: 3px solid #ff8c00;
     transform: translateX(5px);
-}
+} */
