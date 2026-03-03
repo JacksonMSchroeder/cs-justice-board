@@ -29,7 +29,7 @@
     </header>
 
     <div style="max-width: 800px; margin: 0 auto;">
-        <input type="text" id="steamSearch" placeholder="Filtrar por Steam ID, Nome ou Crime..." oninput="filterReports()" 
+        <input type="text" id="steamSearch" oninput="filterReports()" placeholder="Buscar por Steam ID ou Nome..."
                style="width: 100%; padding: 12px; background: rgba(0,0,0,0.5); border: 1px solid #333; color: white; font-family: inherit;">
     </div>
     
@@ -74,6 +74,7 @@
             console.error(erro);
             container.innerHTML = '<p style="color:red; text-align:center;">ERRO AO CONECTAR COM O TERMINAL.</p>';
         }
+
     }
 
     function renderizarPagina(pagina) {
@@ -133,14 +134,22 @@
         });
     }
 
-    function filterReports() {
-        const termo = document.getElementById('steamSearch').value.toLowerCase();
-        dadosFiltrados = todosOsDados.filter(item => 
-            item.offender_steam_id.toLowerCase().includes(termo) || 
-            (item.offender_name && item.offender_name.toLowerCase().includes(termo)) ||
-            item.description.toLowerCase().includes(termo)
-        );
-        renderizarPagina(1); // pag1 com o filtro
+  function filterReports() { //TESTE PARA VOLTAR === DPS QUE TROQUEI AS DUAS BASTE (FRONT/BACK) ESQUECI DE ALTERAR O FILTRO !
+        const input = document.getElementById('steamSearch');
+        if (!input) return;
+        
+        const termo = input.value.toLowerCase();
+
+        
+        dadosFiltrados = todosOsDados.filter(item => {
+            const steamId = (item.offender_steam_id || "").toLowerCase();
+            const nome = (item.offender_name || "").toLowerCase();
+            const desc = (item.description || "").toLowerCase();
+
+            return steamId.includes(termo) || 
+                   nome.includes(termo) || 
+                   desc.includes(termo);
+        });
     }
 
     function atualizarControles() {
