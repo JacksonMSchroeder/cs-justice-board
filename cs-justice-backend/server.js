@@ -12,10 +12,10 @@ const SteamStrategy = require('passport-steam').Strategy;
 
 const app = express();
 
-// --- AJUSTE PARA DEPLOY (RENDER/HTTPS) ---
-app.set('trust proxy', 1); // Essencial para o Express aceitar o HTTPS do Render
 
-// --- TESTE DE AMBIENTE ---
+app.set('trust proxy', 1);
+
+
 console.log("------------------------------------------");
 console.log("SISTEMA DE CHECAGEM DE CHAVES:");
 console.log("SUPABASE URL:", process.env.SUPABASE_URL ? "CONFIGURADO ✅" : "FALTANDO ❌");
@@ -28,7 +28,7 @@ const upload = multer({
     limits: { fileSize: 25 * 1024 * 1024 } 
 });
 
-// HELMET (Ajustado para permitir as imagens e scripts necessários)
+// HELMET 
 app.use(helmet({
     contentSecurityPolicy: {
         directives: {
@@ -46,16 +46,16 @@ app.use(helmet({
     crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" }
 }));
 
-// --- CONFIG DE SESSÃO AJUSTADA PARA O RENDER ---
+// - RENDER -
 app.use(session({
     secret: 'justica_cs2_secret_key', 
     resave: false,
     saveUninitialized: false,
-    proxy: true, // Confia no proxy do Render para o cookie de sessão
+    proxy: true, 
     cookie: { 
         maxAge: 24 * 60 * 60 * 1000, 
-        secure: true,   // Obrigatório true para sites com HTTPS (Render)
-        sameSite: 'none' // Necessário para o redirecionamento externo da Steam funcionar
+        secure: true,   
+        sameSite: 'none' 
     }
 }));
 
@@ -67,7 +67,7 @@ app.use(express.static(path.join(__dirname, 'static')));
 // Banco de dados
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
-// --- CONFIGURAÇÃO PASSPORT STEAM ---
+// --- PASSPORT STEAM ---
 app.use(passport.initialize());
 app.use(passport.session());
 
