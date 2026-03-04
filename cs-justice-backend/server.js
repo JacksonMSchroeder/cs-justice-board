@@ -1,111 +1,64 @@
 require('dotenv').config();
 const express = require('express');
-const { createClient } = require('@supabase/supabase-js');
-const cors = require('cors');
-const helmet = require('helmet');
-const path = require('path');
-const axios = require('axios'); 
-const multer = require('multer'); 
-const session = require('express-session');
 const passport = require('passport');
 const SteamStrategy = require('passport-steam').Strategy;
+const session = require('express-session');
+const multer = require('multer');
+const path = require('path');
 
 const app = express();
+const PORT = process.env.PORT || 3000;
+const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
 
+const SB_URL = process.env.SUPABASE_URL;
+const SB_KEY = process.env.SUPABASE_KEY;
 
-app.set('trust proxy', 1);
+const storage = multer.memoryStorage();
+const upload = multer({ storage, limits: { fileSize: 25 * 1024 * 1024 } });
 
-
-console.log("------------------------------------------");
-console.log("SISTEMA DE CHECAGEM DE CHAVES:");
-console.log("SUPABASE URL:", process.env.SUPABASE_URL ? "CONFIGURADO ✅" : "FALTANDO ❌");
-console.log("STEAM API KEY:", process.env.STEAM_API_KEY ? "CONFIGURADA ✅" : "FALTANDO ❌");
-console.log("------------------------------------------");
-
-// MULTER 
-const upload = multer({ 
-    storage: multer.memoryStorage(),
-    limits: { fileSize: 25 * 1024 * 1024 } 
-});
-
-// HELMET 
-app.use(helmet({
-    contentSecurityPolicy: {
-        directives: {
-            defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", "'unsafe-inline'"],
-            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-            fontSrc: ["'self'", "https://fonts.gstatic.com"],
-            imgSrc: ["'self'", "data:", "https://*.supabase.co", "https://avatars.steamstatic.com", "https://*.steampowered.com", "https://*.steamstatic.com", "https://community.cloudflare.steamstatic.com"], 
-            mediaSrc: ["'self'", "https://*.supabase.co", "data:"],
-            connectSrc: ["'self'", "https://*.supabase.co", "'self'", "https://api.steampowered.com"],
-            formAction: ["'self'", "https://steamcommunity.com"],
-            upgradeInsecureRequests: null,
-        },
-    },
-    crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" }
-}));
-
-// - RENDER -
-app.use(session({
-    secret: 'justica_cs2_secret_key', 
-    resave: false,
-    saveUninitialized: false,
-    proxy: true, 
-    cookie: { 
-        maxAge: 24 * 60 * 60 * 1000, 
-        secure: process.env.NODE_ENV === 'production',   
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax' 
-    }
-}));
-
-app.use(cors());
-app.use(express.json()); 
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'static')));
-
-// Banco de dados
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
-
-// --- PASSPORT STEAM ---
-app.use(passport.initialize());
-app.use(passport.session());
+async function supabaseQuery(table, method, body = null) {
+    const options = {
+        method,
+        headers: {
+            'apikey': SB_KEY,
+            'Authorization': `Bearer ${SB_KEY}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation'
+        }
+    };
+    if (body) options.body = JSON.stringify(body);
+    const res = await fetch(`${SB_URL}/rest/v1/${table}`, options);
+    return res.json();
+}
 
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((obj, done) => done(null, obj));
 
 passport.use(new SteamStrategy({
-    returnURL: 'https://cs-justice-board.onrender.com',
-    realm: 'https://cs-justice-board.onrender.com',
+    returnURL: `${BASE_URL}/auth/steam/return`,
+    realm: `${BASE_URL}/`,
     apiKey: process.env.STEAM_API_KEY
-  },
-  (identifier, profile, done) => {
-    process.nextTick(() => {
-        profile.identifier = identifier;
-        return done(null, profile);
-    });
-  }
-));
+}, (identifier, profile, done) => done(null, profile)));
 
-// --- ROTAS DE AUTENTICAÇÃO ---
-app.get('/auth/steam', passport.authenticate('steam'));
+app.use(session({
+    secret: 'cs-justica-secret',
+    resave: false,
+    saveUninitialized: true
+}));
 
-app.get('/auth/steam/return', 
-    passport.authenticate('steam', { failureRedirect: '/' }), 
-    (req, res) => {
-        console.log("🚀 LOGIN SUCESSO:", req.user.displayName);
-        res.redirect('/'); 
-    }
-);
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(express.json());
+
+app.use(express.static(path.join(__dirname, 'static')));
 
 app.get('/api/user-status', (req, res) => {
     if (req.isAuthenticated()) {
         res.json({ 
             logged: true, 
-            user: {
-                name: req.user.displayName,
-                avatar: req.user._json.avatarfull,
-                steamid: req.user.id
+            user: { 
+                name: req.user.displayName, 
+                avatar: req.user.photos[0].value 
             } 
         });
     } else {
@@ -113,115 +66,69 @@ app.get('/api/user-status', (req, res) => {
     }
 });
 
-app.get('/logout', (req, res) => {
-    req.logout(() => {
-        res.redirect('/');
-    });
-});
-
-// API REPORTS lista
 app.get('/api/reports', async (req, res) => {
     try {
-        const { data, error } = await supabase
-            .from('reports')
-            .select('*')
-            .eq('approved', true)
-            .order('created_at', { ascending: false });
-        if (error) throw error;
-        res.status(200).json(data);
-    } catch (error) {
-        res.status(500).json({ error: "Erro ao buscar dados" });
+        const data = await supabaseQuery('reports?select=*&order=created_at.desc', 'GET');
+        res.json(data);
+    } catch (err) { 
+        res.status(500).json({ error: err.message }); 
     }
 });
 
-// API REPORTS POST
-app.post('/api/reports', upload.single('arquivo'), async (req, res) => { 
+app.post('/api/reports', upload.single('arquivo'), async (req, res) => {
     try {
-        const { offender_steam_id, description, reporter } = req.body;
-        const file = req.file;
-        const KEY = process.env.STEAM_API_KEY;
+        const { reporter, offender_steam_id, description } = req.body;
+        let evidence_url = null;
 
-        if (!offender_steam_id) return res.status(400).json({ error: "Steam ID obrigatório." });
-
-        let inputSteam = offender_steam_id.trim();
-        let finalSteamID = inputSteam;
-
-        // Resolução de URL Steam
-        if (inputSteam.includes('steamcommunity.com') || isNaN(inputSteam)) {
-            let vanityPart = inputSteam;
-            if (inputSteam.includes('/id/')) vanityPart = inputSteam.split('/id/')[1].split('/')[0];
-            else if (inputSteam.includes('/profiles/')) finalSteamID = inputSteam.split('/profiles/')[1].split('/')[0];
-
-            if (isNaN(finalSteamID)) {
-                const resResolve = await axios.get(`http://api.steampowered.com{KEY}&vanityurl=${vanityPart}`);
-                if (resResolve.data.response.success === 1) {
-                    finalSteamID = resResolve.data.response.steamid;
-                }
+        if (req.file) {
+            const fileName = `${Date.now()}-${req.file.originalname}`;
+            const uploadRes = await fetch(`${SB_URL}/storage/v1/object/evidences/${fileName}`, {
+                method: 'POST',
+                headers: { 
+                    'Authorization': `Bearer ${SB_KEY}`, 
+                    'apikey': SB_KEY, 
+                    'Content-Type': req.file.mimetype 
+                },
+                body: req.file.buffer
+            });
+            if (uploadRes.ok) {
+                evidence_url = `${SB_URL}/storage/v1/object/public/evidences/${fileName}`;
             }
         }
 
-        let finalEvidenceUrl = null;
-        if (file) {
-            const fileName = `${Date.now()}-${file.originalname.replace(/\s+/g, '_')}`;
-            const { data: storageData, error: storageError } = await supabase.storage
-                .from('evidencias')
-                .upload(fileName, file.buffer, { contentType: file.mimetype });
-            
-            if (storageError) throw storageError;
-            finalEvidenceUrl = supabase.storage.from('evidencias').getPublicUrl(fileName).data.publicUrl;
-        }
+        await supabaseQuery('reports', 'POST', {
+            reporter, 
+            offender_steam_id, 
+            description, 
+            evidence_url,
+            vac_status: 'Consultando...', 
+            avatarsteam: 'https://via.placeholder.com/150'
+        });
 
-        let offender_name = "Não Identificado";
-        let avatarsteam = "https://avatars.steamstatic.com";
-        let vac_status = "Limpa";
-
-        try {
-            const [resSteam, resBans] = await Promise.all([
-                axios.get(`http://api.steampowered.com{KEY}&steamids=${finalSteamID}`),
-                axios.get(`http://api.steampowered.com{KEY}&steamids=${finalSteamID}`)
-            ]);
-
-            const player = resSteam.data.response.players[0];
-            if (player) {
-                offender_name = player.personaname;
-                avatarsteam = player.avatarfull;
-            }
-
-            const banData = resBans.data.players[0];
-            if (banData && (banData.VACBanned || banData.NumberOfGameBans > 0)) {
-                vac_status = "Banido";
-            }
-        } catch (e) { console.error("Erro Valve API:", e.message); }
-
-        const { error: dbError } = await supabase
-            .from('reports')
-            .insert([{ 
-                offender_steam_id: finalSteamID, 
-                description, 
-                evidence_url: finalEvidenceUrl, 
-                reporter: reporter || "Anônimo", 
-                offender_name,
-                avatarsteam,
-                vac_status, 
-                approved: false 
-            }]);
-        
-        if (dbError) throw dbError;
-        res.status(201).json({ success: true });
-
-    } catch (error) {
-        console.error("Erro Crítico:", error.message);
-        res.status(500).json({ error: "Erro interno." });
+        res.status(200).json({ success: true });
+    } catch (err) { 
+        res.status(500).json({ error: err.message }); 
     }
 });
 
-// --- SERVIR FRONT-END ---
-app.get('/mural', (req, res) => res.sendFile(path.join(__dirname, 'static', 'mural.html')));
-app.get('/contato', (req, res) => res.sendFile(path.join(__dirname, 'static', 'contato.html')));
-app.get('/lei', (req, res) => res.sendFile(path.join(__dirname, 'static', 'lei.html')));
-app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'static', 'index.html')));
+app.get('/auth/steam', passport.authenticate('steam'));
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Servidor rodando na porta ${PORT}`);
+app.get('/auth/steam/return', 
+    passport.authenticate('steam', { failureRedirect: '/' }), 
+    (req, res) => res.redirect('/')
+);
+
+app.get('/logout', (req, res) => {
+    req.logout(() => res.redirect('/'));
+});
+
+app.get('*', (req, res) => {
+    const pages = ['mural', 'lei', 'contato'];
+    const url = req.path.replace('/', '');
+    const targetFile = pages.includes(url) ? `${url}.html` : 'index.html';
+    res.sendFile(path.join(__dirname, 'static', targetFile));
+});
+
+app.listen(PORT, () => {
+    console.log(`Servidor rodando em: ${BASE_URL}`);
 });

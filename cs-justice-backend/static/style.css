@@ -151,7 +151,7 @@ body {
 }
 
 /* 
-   3. CAIXA DE CONTEÚDO (MANIFESTO / LEI / CONTATO)
+    (MANIFESTO / LEI / CONTATO)
     */
 .content-box, main {
     max-width: 800px;
@@ -220,10 +220,10 @@ body {
     gap: 10px;
 }
 
-/* O Botão Customizado */
+
 .btn-arquivo {
     background-color: transparent;
-    border: 2px dashed #ff9d00; /* Borda tracejada dá ideia de "solte o arquivo aqui" */
+    border: 2px dashed #ff9d00; 
     color: #ff9d00;
     padding: 15px 30px;
     border-radius: 4px;
@@ -236,7 +236,7 @@ body {
 
 .btn-arquivo {
     background-color: rgba(255, 157, 0, 0.1);
-    border-style: solid; /* A borda fica sólida no hover */
+    border-style: solid; 
     transform: scale(1.02);
 }
 

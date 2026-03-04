@@ -3,27 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Legislação, internet não é terra sem lei.</title>
+    <title>Legislação - Internet não é terra sem lei</title>
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-   <nav class="navbar">
+    <nav class="navbar">
         <div class="nav-links">
-            <a href="index.html" class="nav-item">Manifesto</a>
-            <a href="mural.html" class="nav-item">Mural</a>
-            <a href="lei.html" class="nav-item">Lei</a>
-            <a href="contato.html" class="nav-item">Contato</a>
+            <a href="/" class="nav-item">Manifesto</a>
+            <a href="/mural" class="nav-item">Mural</a>
+            <a href="/lei" class="nav-item">Lei</a>
+            <a href="/contato" class="nav-item">Contato</a>
         </div>
         <div id="auth-section" class="nav-auth">
             <a href="/auth/steam" class="login-btn">LOGIN STEAM</a>
         </div>
     </nav>
-
-            
-    </div>
-</section>
 
     <header class="main-header">
         <h1>[LEGISLAÇÃO] RACISMO NO CS2 <span class="orange">NÃO É "TRASH TALK", É CRIME</span></h1>
@@ -60,63 +56,72 @@
     </main>
 
     <section class="reflexao">
-    <h3 class="orange">O IMPACTO ALÉM DA TELA</h3>
-    <p>
-        O que muitos chamam de "brincadeira" ou "meme de lobby", para quem ouve, é a reafirmação de um sistema de exclusão. 
-        No CS, a adrenalina da partida nunca deve ser usada como escudo para o preconceito. 
-        Quando você profere uma ofensa racial, você não está dando "trash talk" no seu adversário; você está atacando a dignidade humana.
-    </p>
-    <p>
-        A comunidade que queremos construir é feita de mira, tática e respeito. 
-        <strong>O ódio afasta as pessoas e quebra a comunidade.</strong>
-    </p>
-</section>
+        <h3 class="orange">O IMPACTO ALÉM DA TELA</h3>
+        <p>
+            O que muitos chamam de "brincadeira" ou "meme de lobby", para quem ouve, é a reafirmação de um sistema de exclusão. 
+            No CS, a adrenalina da partida nunca deve ser usada como escudo para o preconceito. 
+            Quando você profere uma ofensa racial, você não está dando "trash talk" no seu adversário; você está atacando a dignidade humana.
+        </p>
+        <p>
+            A comunidade que queremos construir é feita de mira, tática e respeito. 
+            <strong>O ódio afasta as pessoas e quebra a comunidade.</strong>
+        </p>
+    </section>
 
-<section class="antifakereport">
-    <div class="antifake-wrapper">
-        <div class="antifake-header">
-            <span class="warning-icon">⚠️</span>
-            <h3>NÃO FAÇA FALSAS DENÚNCIAS</h3>
+    <section class="antifakereport">
+        <div class="antifake-wrapper">
+            <div class="antifake-header">
+                <span class="warning-icon">⚠️</span>
+                <h3>NÃO FAÇA FALSAS DENÚNCIAS</h3>
+            </div>
+            <div class="antifake-body">
+                <h3>AVISO IMPORTANTE: A RESPONSABILIDADE É SUA</h3>
+                <p>Denunciar falsamente alguém por crime que não cometeu é <strong>Denunciação Caluniosa (Art. 339 do Código Penal)</strong>.</p>
+                <p>Se as provas forem forjadas ou se for comprovada má-fé, o autor da denúncia poderá responder judicialmente. A justiça funciona para os dois lados: quem mente para prejudicar inocentes sofre as mesmas penas ou até maiores.</p>
+                <p class="orange"><strong>Não use esta plataforma para vinganças pessoais. Use-a para combater crimes reais. <br>
+                Responsabilidade do usuário </strong></p>
+            </div>
         </div>
-        <div class="antifake-body">
-        <h3>AVISO IMPORTANTE: A RESPONSABILIDADE É SUA</h3>
-            <p>Denunciar falsamente alguém por crime que não cometeu é **Denunciação Caluniosa (Art. 339 do Código Penal)**.</p>
-            <p>Se as provas forem forjadas ou se for comprovada má-fé, o autor da denúncia poderá responder judicialmente. A justiça funciona para os dois lados: quem mente para prejudicar inocentes sofre as mesmas penas ou até maiores.</p>
-            <p class="orange"><strong>Não use esta plataforma para vinganças pessoais. Use-a para combater crimes reais. <br>
-            Responsabilidade do usuário </strong></p>
-        </div>
+    </section>
 
-
-  </main> <footer>
+    <footer>
         <div class="footer-content">
             <p>&copy; 2026 Projeto Independente de Combate à Toxicidade.</p>
             <p class="disclaimer">Este site não possui vínculo com a Valve Corporation ou Steam.</p>
         </div>
     </footer>
-</body>
-</html>
 
-<script>
+    <script>
     async function checkLoginStatus() {
-        try {
-            const response = await fetch('/api/user-status');
-            const data = await response.json();
-            const authSection = document.getElementById('auth-section');
-            if (!authSection) return;
+    try {
+        const response = await fetch('/api/user-status', { 
+            credentials: 'include' 
+        });
+        const data = await response.json();
+        const authSection = document.getElementById('auth-section');
 
-            if (data.logged) {
-                authSection.innerHTML = `
-                    <div style="display: flex; align-items: center; gap: 10px; background: #111; padding: 5px 12px; border-radius: 4px; border: 1px solid #ff8c00;">
-                        <img src="${data.user.avatar}" style="width: 25px; height: 25px; border-radius: 2px; border: 1px solid #ff8c00;">
-                        <span style="color: #fff; font-size: 0.85rem; font-weight: bold;">${data.user.name}</span>
-                        <a href="/logout" style="color: #ff4444; font-size: 0.7rem; text-decoration: none; margin-left: 8px; border-left: 1px solid #333; padding-left: 8px;">SAIR</a>
-                    </div>`;
+        
+        if (data.logged && authSection) {
+            authSection.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.6); padding: 5px 12px; border-radius: 4px; border: 1px solid #ff8c00;">
+                    <img src="${data.user.avatar}" style="width: 25px; height: 25px; border-radius: 2px; border: 1px solid #ff8c00;">
+                    <span style="color: #fff; font-size: 0.85rem; font-weight: bold;">${data.user.name}</span>
+                    <a href="/logout" style="color: #ff4444; font-size: 0.7rem; text-decoration: none; margin-left: 8px; border-left: 1px solid #333; padding-left: 8px; font-weight:bold;">SAIR</a>
+                </div>
+            `;
+
+           
+            const reporterInput = document.getElementById('reporter');
+            if (reporterInput) {
+                reporterInput.value = data.user.name;
+                reporterInput.style.background = "rgba(255, 140, 0, 0.1)";
+                reporterInput.title = "Identificado via Steam";
             }
-        } catch (err) {
-            console.error("Erro ao checar login:", err);
         }
+    } catch (err) {
+        console.error("Erro ao checar login:", err);
     }
-    window.addEventListener('load', checkLoginStatus);
-    </script>
+}
+</script>
 </body>
 </html>
