@@ -1,6 +1,4 @@
-/* 
-   1. CONFIGURAÇÕES GERAIS (O CORPO DO SITE)
-    */
+
 body {
     margin: 0;
     padding: 0;
@@ -329,7 +327,7 @@ body {
 .log-msg { color: #e0e0e0; }
 
 /* 
-  MURAL DESTAQUE (PÁGINA index - 3 QUADRADOS)
+   3 QUADRADOS
     */
 .mural-destaque {
     margin: 50px auto;

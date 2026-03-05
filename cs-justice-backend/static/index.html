@@ -67,73 +67,99 @@
         </div>
     </footer>
 
-   <script>
-    // 1. Verifica status do usuário para a Navbar
+  Para garantir que o sistema todo fale a mesma língua (a língua das colunas que você me passou), o ideal é que você atualize o Index e a Lei também.
+
+Se você não mudar o index.html, por exemplo, ele pode tentar buscar o "offender_name" (que você tirou da tabela) e o card vai aparecer vazio ou com erro.
+
+Aqui estão os dois que faltam para fechar o pacote 5/5, seguindo a sua estrutura exata de colunas:
+
+4/5 — index.html (Manifesto + Destaques)
+Atualizei a lógica para mostrar o offender_steam_id no lugar do nome, já que agora o nome não existe na sua tabela.
+
+HTML
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS: Justiça - Manifesto</title>
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-links">
+            <a href="/" class="nav-item">Manifesto</a>
+            <a href="/mural" class="nav-item">Mural</a>
+            <a href="/lei" class="nav-item">Lei</a>
+            <a href="/contato" class="nav-item">Contato</a>
+        </div>
+        <div id="auth-section" class="nav-auth">
+            <a href="/auth/steam" class="login-btn">LOGIN STEAM</a>
+        </div>
+    </nav>
+
+    <header class="main-header">
+        <h1>CS2:<span class="orange"> Racismo não é TrashTalk, é CRIME!</span></h1>
+    </header>
+
+    <section class="mural-destaque">
+        <h2 class="orange">ÚLTIMOS REGISTROS</h2>
+        <div class="cards-container" id="recent-reports-container">
+            <p style="color: #888; text-align: center;">Sincronizando...</p>
+        </div>
+        <a href="/mural" class="ver-todos">VER MURAL COMPLETO →</a>
+    </section>
+
+    <main class="content-box">
+        <h2>MANIFESTO</h2>
+        <p>No Counter-Strike, a competitividade faz parte da essência, mas o crime não. O racismo e o discurso de ódio não são aceitáveis.</p>
+    </main>
+
+<script>
     async function checkUserStatus() {
         try {
             const res = await fetch('/api/user-status');
             const data = await res.json();
-            const authSection = document.getElementById('auth-section');
-
-            if (data.logged && authSection) {
-                authSection.innerHTML = `
+            if (data.logged) {
+                document.getElementById('auth-section').innerHTML = `
                     <div style="display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.6); padding: 5px 12px; border-radius: 4px; border: 1px solid #ff9d00;">
-                        <img src="${data.user.avatar}" style="width: 25px; height: 25px; border-radius: 2px; border: 1px solid #ff9d00;">
+                        <img src="${data.user.avatar}" style="width: 25px; height: 25px; border-radius: 2px;">
                         <span style="color: #fff; font-size: 0.85rem; font-weight: bold;">${data.user.name}</span>
-                        <a href="/logout" style="color: #ff4444; font-size: 0.7rem; text-decoration: none; margin-left: 8px; border-left: 1px solid #333; padding-left: 8px; font-weight:bold; text-transform: uppercase;">Sair</a>
-                    </div>
-                `;
+                        <a href="/logout" style="color: #ff4444; font-size: 0.7rem; text-decoration: none; margin-left: 8px;">SAIR</a>
+                    </div>`;
             }
-        } catch (err) { console.error("Erro auth index:", err); }
+        } catch (err) { console.error(err); }
     }
 
-    // 2. Carrega apenas os 3 destaques aprovados
     async function carregarDestaques() {
         const container = document.getElementById('recent-reports-container');
-        const defaultImg = "https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg";
-
         try {
             const res = await fetch('/api/reports');
             const dados = await res.json();
-            
-            if (!Array.isArray(dados) || dados.length === 0) {
-                container.innerHTML = '<p style="color:#666; text-align:center; padding:20px;">[ NENHUM REGISTRO APROVADO ]</p>';
+            if (dados.length === 0) {
+                container.innerHTML = '<p style="color:#666;">[ NENHUM REGISTRO APROVADO ]</p>';
                 return;
             }
-
             container.innerHTML = '';
-            // Pega os 3 mais recentes
             dados.slice(0, 3).forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'card-log';
-
                 card.innerHTML = `
-                    <div class="card-header">
-                        <span>DATA: ${new Date(item.created_at).toLocaleDateString('pt-BR')}</span>
-                        <span style="color: #ff9d00;">ID: ${item.id}</span>
-                    </div>
                     <div style="display:flex; align-items:center; gap:12px;">
-                        <img src="${item.avatarsteam || defaultImg}" 
-                             onerror="this.src='${defaultImg}'" 
-                             class="avatar-steam" style="width: 40px; height: 40px;">
+                        <img src="${item.avatarsteam}" class="avatar-steam" style="width: 40px; height: 40px;">
                         <div>
-                            <strong style="color:#ff9d00; font-size:0.9rem;">${item.offender_name || 'IDENTIFICADO'}</strong><br>
-                            <span style="color:#00ff00; font-size:0.65rem; font-weight:bold;">ESTADO: DOCUMENTADO</span>
+                            <strong style="color:#ff9d00; font-size:0.7rem;">ID: ${item.offender_steam_id}</strong><br>
+                            <span style="color:#00ff00; font-size:0.6rem; font-weight:bold;">ESTADO: DOCUMENTADO</span>
                         </div>
-                    </div>
-                `;
+                    </div>`;
                 container.appendChild(card);
             });
-        } catch (e) { 
-            console.error(e);
-            container.innerHTML = '<p style="color:red;">Falha na conexão com a central.</p>';
-        }
+        } catch (e) { container.innerHTML = '<p style="color:red;">Falha na central.</p>'; }
     }
 
-    window.onload = () => {
-        checkUserStatus();
-        carregarDestaques();
-    };
+    window.onload = () => { checkUserStatus(); carregarDestaques(); };
 </script>
 </body>
 </html>

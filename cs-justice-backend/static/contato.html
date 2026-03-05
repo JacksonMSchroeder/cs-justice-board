@@ -1,371 +1,87 @@
 <!DOCTYPE html>
-
 <html lang="pt-br">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Contato e Denúncia - CS: Justiça</title>
-
-    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;700&display=swap" rel="stylesheet">
-
+    <title>Denúncia - CS: Justiça</title>
     <link rel="stylesheet" href="style.css">
-
 </head>
-
 <body>
-
-
-
     <nav class="navbar">
-
         <div class="nav-links">
-
             <a href="/" class="nav-item">Manifesto</a>
-
             <a href="/mural" class="nav-item">Mural</a>
-
             <a href="/lei" class="nav-item">Lei</a>
-
             <a href="/contato" class="nav-item">Contato</a>
-
         </div>
-
         <div id="auth-section" class="nav-auth">
-
             <a href="/auth/steam" class="login-btn">LOGIN STEAM</a>
-
         </div>
-
     </nav>
 
-
-
-    <header class="main-header">
-
-        <h1>VIROU ALVO? <span class="orange">NÃO SE CALE.</span></h1>
-
-        <p>Saiba como denunciar e onde buscar apoio jurídico.</p>
-
-    </header>
-
-
-
     <main class="grid-contato">
-
-        <section class="canais-oficiais">
-
-            <h2 class="orange">CANAIS OFICIAIS</h2>
-
-            <p>Para punição legal e criminal, recorra a estes órgãos:</p>
-
-           
-
-            <div class="canal-card">
-
-                <h3>Delegacia de Crimes Raciais (DECRADI)</h3>
-
-                <p>Busque a delegacia especializada do seu estado. Utilize a <strong>Delegacia Eletrônica</strong> para registrar o B.O. online.</p>
-
-            </div>
-
-
-
-            <div class="canal-card">
-
-                <h3>SaferNet Brasil</h3>
-
-                <p>Referência nacional em denúncias de crimes de ódio na internet. <br>
-
-                <a href="https://new.safernet.org.br/denuncie" target="_blank">denuncia.safernet.org.br</a></p>
-
-            </div>
-
-
-
-            <div class="canal-card">
-
-                <h3>Ministério Público Federal</h3>
-
-                <p>Formalize uma denúncia diretamente ao MPF através da Sala de Atendimento ao Cidadão.</p>
-
-            </div>
-
-        </section>
-
-
-
         <section class="envio-mural">
-
             <h2 class="orange">ENVIE PARA O MURAL</h2>
-
-            <p>Ajude-nos a documentar a toxicidade. O conteúdo será revisado por moderadores.</p>
-
-
-
-            <div id="login-warning" class="warning-box" style="margin-bottom: 20px; border: 1px solid #ff4444; padding: 15px; background: rgba(255,0,0,0.1); border-radius: 4px;">
-
-                <p style="color: #ff4444; font-weight: bold; margin: 0;">⚠️ LOGIN NECESSÁRIO</p>
-
-                <small style="color: #ccc;">Para evitar spam e ataques, você precisa se identificar via Steam para enviar uma denúncia.</small>
-
+            <div id="login-warning" class="warning-box">
+                <p>⚠️ LOGIN NECESSÁRIO</p>
             </div>
-
-
-
             <form id="reportForm" class="form-contato" enctype="multipart/form-data" style="opacity: 0.5; pointer-events: none;">
-
-                <input type="text" id="reporter" placeholder="Seu Nick (Identificado via Steam)" readonly required>
-
-                <input type="text" id="offender_steam_id" placeholder="SteamURL ou SteamID64 do Infrator" required>
-
-               
-
-                <div class="input-group">
-
-                    <label for="mensagem">DESCRIÇÃO DOS FATOS</label>
-
-                    <textarea id="mensagem" name="mensagem" placeholder="Descreva o ocorrido (Ex: ofensas no chat de voz aos 10 min)..." required></textarea>
-
-                </div>
-
-
-
-                <div class="file-upload-wrapper">
-
-                    <label for="arquivo" class="btn-arquivo">
-
-                        <span class="icon">📁</span> ANEXAR PROVA (JPG/PNG)
-
-                    </label>
-
-                    <input type="file" id="arquivo" name="arquivo" hidden accept="image/*">
-
-                    <span id="file-name" style="font-size: 0.8rem; color: #888; display: block; margin-top: 5px;">Nenhum arquivo selecionado (Máx 25MB)</span>
-
-                </div>
-
-
-
+                <input type="text" id="reporter" readonly required>
+                <input type="text" id="offender_steam_id" placeholder="Link do Perfil Steam do Infrator" required>
+                <textarea id="mensagem" placeholder="Descreva o ocorrido..." required></textarea>
+                <input type="file" id="arquivo" name="arquivo" hidden accept="image/*">
+                <label for="arquivo" class="btn-arquivo">ANEXAR PROVA (JPG/PNG) </label>
+                <span id="file-name">Nenhum arquivo selecionado</span>
                 <button type="submit" id="btnEnviar" class="send-btn" disabled>LOGUE PARA ENVIAR</button>
-
             </form>
-
         </section>
-
     </main>
 
-
-
-    <footer>
-
-        <div class="footer-content">
-
-            <p>&copy; 2026 Projeto Independente de Combate à Toxicidade.</p>
-
-            <p class="disclaimer">Este site não possui vínculo com a Valve Corporation ou Steam.</p>
-
-        </div>
-
-    </footer>
-
-
-
 <script>
-
     const reportForm = document.getElementById('reportForm');
-
     const inputArquivo = document.getElementById('arquivo');
-
     const labelTexto = document.getElementById('file-name');
-
     const btnEnviar = document.getElementById('btnEnviar');
 
-    const loginWarning = document.getElementById('login-warning');
-
-
-
-    // 1. Controle de Seleção de Arquivo
-
     inputArquivo.addEventListener('change', () => {
-
-        if (inputArquivo.files.length > 0) {
-
-            const arquivo = inputArquivo.files[0];
-
-            const tamanhoMB = arquivo.size / (1024 * 1024);
-
-
-
-            if (tamanhoMB > 25) {
-
-                alert("⚠️ Arquivo muito grande! O limite é de 25MB.");
-
-                inputArquivo.value = "";
-
-                labelTexto.innerText = "Arquivo muito grande (Máx 25MB)";
-
-                labelTexto.style.color = "#ff4444";
-
-            } else {
-
-                labelTexto.innerText = "Selecionado: " + arquivo.name;
-
-                labelTexto.style.color = "#00ff00";
-
-            }
-
-        }
-
+        if (inputArquivo.files[0]) labelTexto.innerText = inputArquivo.files[0].name;
     });
-
-
-
-    // 2. Verificação de Login e Liberação do Formulário
 
     async function checkLoginStatus() {
-
         try {
-
             const response = await fetch('/api/user-status');
-
             const data = await response.json();
-
-            const authSection = document.getElementById('auth-section');
-
-
-
             if (data.logged) {
-
-                // Atualiza Navbar
-
-                authSection.innerHTML = `
-
-                    <div style="display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.6); padding: 5px 12px; border-radius: 4px; border: 1px solid #ff9d00;">
-
-                        <img src="${data.user.avatar}" style="width: 25px; height: 25px; border-radius: 2px; border: 1px solid #ff9d00;">
-
-                        <span style="color: #fff; font-size: 0.85rem; font-weight: bold;">${data.user.name}</span>
-
-                        <a href="/logout" style="color: #ff4444; font-size: 0.7rem; text-decoration: none; margin-left: 8px; border-left: 1px solid #333; padding-left: 8px; font-weight:bold;">SAIR</a>
-
-                    </div>
-
-                `;
-
-
-
-                // Libera o Formulário
-
+                document.getElementById('auth-section').innerHTML = `<span>${data.user.name}</span> <a href="/logout">Sair</a>`;
                 reportForm.style.opacity = "1";
-
                 reportForm.style.pointerEvents = "auto";
-
-                loginWarning.style.display = "none";
-
+                document.getElementById('login-warning').style.display = "none";
                 btnEnviar.disabled = false;
-
                 btnEnviar.innerText = "ENVIAR DENÚNCIA";
-
-               
-
-                const reporterInput = document.getElementById('reporter');
-
-                reporterInput.value = data.user.name;
-
+                document.getElementById('reporter').value = data.user.name;
             }
-
-        } catch (err) {
-
-            console.error("Erro ao checar login:", err);
-
-        }
-
+        } catch (err) { console.error(err); }
     }
 
-
-
-    // 3. Envio do Formulário (POST)
-
     reportForm.addEventListener('submit', async (e) => {
-
         e.preventDefault();
-
-       
-
-        btnEnviar.innerText = "🚀 PROCESSANDO...";
-
-        btnEnviar.disabled = true;
-
-
-
+        btnEnviar.innerText = "🚀 ENVIANDO...";
         const formData = new FormData();
-
         formData.append('offender_steam_id', document.getElementById('offender_steam_id').value.trim());
-
         formData.append('description', document.getElementById('mensagem').value);
+        if (inputArquivo.files[0]) formData.append('arquivo', inputArquivo.files[0]);
 
-       
-
-        if (inputArquivo.files.length > 0) {
-
-            formData.append('arquivo', inputArquivo.files[0]);
-
+        const res = await fetch('/api/reports', { method: 'POST', body: formData });
+        if (res.ok) {
+            alert('Enviado com sucesso! Aguarde moderação.');
+            window.location.href = '/mural';
+        } else {
+            alert('Erro ao enviar. Verifique o servidor.');
         }
-
-
-
-        try {
-
-            const response = await fetch('/api/reports', {
-
-                method: 'POST',
-
-                body: formData
-
-            });
-
-
-
-            if (response.ok) {
-
-                alert('✅ SUCESSO! Sua denúncia foi enviada para moderação.');
-
-                reportForm.reset();
-
-                window.location.href = '/mural'; // Redireciona para o mural
-
-            } else {
-
-                const erro = await response.json();
-
-                alert('❌ ERRO: ' + (erro.error || 'Falha no envio.'));
-
-            }
-
-        } catch (err) {
-
-            alert('🚨 ERRO DE CONEXÃO: Verifique sua internet.');
-
-        } finally {
-
-            btnEnviar.innerText = "ENVIAR DENÚNCIA";
-
-            btnEnviar.disabled = false;
-
-        }
-
+        btnEnviar.innerText = "ENVIAR DENÚNCIA";
     });
 
-
-
     window.onload = checkLoginStatus;
-
 </script>
-
 </body>
-
 </html>
