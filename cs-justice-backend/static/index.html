@@ -53,7 +53,7 @@
 
         <h2 class="orange">Nossas Demandas:</h2>
         <ul>
-            <li><strong>Moderação de Voz Automatizada</strong> via IA.</li>
+            <li><strong>Moderação de Voz.</strong> </li>
             <li><strong>Banimentos de Inventário</strong> para crimes de ódio.</li>
             <li><strong>Reformulação do Sistema de Report</strong> com feedback real.</li>
         </ul>
@@ -66,56 +66,6 @@
             <p class="disclaimer">Este site não possui vínculo com a Valve Corporation ou Steam.</p>
         </div>
     </footer>
-
-  Para garantir que o sistema todo fale a mesma língua (a língua das colunas que você me passou), o ideal é que você atualize o Index e a Lei também.
-
-Se você não mudar o index.html, por exemplo, ele pode tentar buscar o "offender_name" (que você tirou da tabela) e o card vai aparecer vazio ou com erro.
-
-Aqui estão os dois que faltam para fechar o pacote 5/5, seguindo a sua estrutura exata de colunas:
-
-4/5 — index.html (Manifesto + Destaques)
-Atualizei a lógica para mostrar o offender_steam_id no lugar do nome, já que agora o nome não existe na sua tabela.
-
-HTML
-
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CS: Justiça - Manifesto</title>
-    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <nav class="navbar">
-        <div class="nav-links">
-            <a href="/" class="nav-item">Manifesto</a>
-            <a href="/mural" class="nav-item">Mural</a>
-            <a href="/lei" class="nav-item">Lei</a>
-            <a href="/contato" class="nav-item">Contato</a>
-        </div>
-        <div id="auth-section" class="nav-auth">
-            <a href="/auth/steam" class="login-btn">LOGIN STEAM</a>
-        </div>
-    </nav>
-
-    <header class="main-header">
-        <h1>CS2:<span class="orange"> Racismo não é TrashTalk, é CRIME!</span></h1>
-    </header>
-
-    <section class="mural-destaque">
-        <h2 class="orange">ÚLTIMOS REGISTROS</h2>
-        <div class="cards-container" id="recent-reports-container">
-            <p style="color: #888; text-align: center;">Sincronizando...</p>
-        </div>
-        <a href="/mural" class="ver-todos">VER MURAL COMPLETO →</a>
-    </section>
-
-    <main class="content-box">
-        <h2>MANIFESTO</h2>
-        <p>No Counter-Strike, a competitividade faz parte da essência, mas o crime não. O racismo e o discurso de ódio não são aceitáveis.</p>
-    </main>
 
 <script>
     async function checkUserStatus() {
