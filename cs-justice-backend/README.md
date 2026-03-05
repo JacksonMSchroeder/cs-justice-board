@@ -3,27 +3,20 @@
 ## 🔗 Link do Projeto
 🚀 **Confira o projeto rodando aqui:** [https://cs-justice-board.onrender.com/](https://cs-justice-board.onrender.com/)
 
-<div align="center">
-  <img src="./cs-justice-backend/static/assets/allpagescs.gif" alt="Demonstração das Páginas" width="800">
-</div>
+![Demonstração das Páginas](./static/assets/allpagescs.gif)
 
 ---
 
 ## 🔐 Sistema de Login via Valve (Steam OpenID)
 
-O projeto implementa autenticação segura via Steam, garantindo que apenas usuários reais da plataforma possam interagir com o sistema de denúncias.
-
 | Antes do Login | Após Autenticação |
 | :---: | :---: |
-| <img src="./cs-justice-backend/static/assets/nolog.png" width="400"> | <img src="./cs-justice-backend/static/assets/yeslog.png" width="400"> |
+| ![Sem Login](./static/assets/nolog.png) | ![Com Login](./static/assets/yeslog.png) |
 
-<br>
+
 
 ### ⚡ Integração com Supabase & Moderação
-<div align="center">
-  <img src="./cs-justice-backend/static/assets/supacs.png" alt="Painel Supabase" width="800">
-</div>
-
+![Painel Supabase](./static/assets/supacs.png)
 *O projeto utiliza o **Supabase (PostgreSQL)** para gestão de dados e o **Supabase Storage** para armazenamento seguro de evidências, contando com um sistema de moderação onde as denúncias só aparecem no mural após aprovação administrativa.*
 
 ---
@@ -71,7 +64,10 @@ Interface desenvolvida com foco em **Mobile First**, garantindo total funcionali
 **Foco:** Análise e Desenvolvimento de Sistemas / Fullstack Development  
 **Objetivo:** Contribuição social através da tecnologia e democratização do acesso à justiça digital.
 
----
+
+
+
+
 
 ## 📓 Diário de Bordo & Lições Aprendidas
 
@@ -83,7 +79,7 @@ O **Helmet** foi o meu maior adversário e, ao mesmo tempo, meu maior mestre. El
 
 ### 🚩 Gestão de Erros e a "Cilada" do Commit
 No início, cometi o erro de usar o Commit como ambiente de teste. Fazia uma alteração "boba", commitava sem testar, dava erro, e o ciclo se repetia.
-* **O Aprendizado:** O commit deve ser certeiro. Hoje adoto o mantra: **TESTAR, TESTAR e TESTAR** no ambiente local antes de qualquer deploy. O histórico de commits é a identidade do desenvolvedor; ele deve ser limpo e profissional.
+* **O Aprendizado:** O commit deve ser certeiro. Hoje adoto o mantra: **TESTAR, TESTAR e TESTAR** no ambiente local (Live Server/Node local) antes de qualquer deploy. O histórico de commits é a identidade do desenvolvedor; ele deve ser limpo e profissional. [NotaImportante!] Devo melhorar em futuros projetos. 
 
 ### 🔍 Atenção aos Detalhes (O Bug Invisível)
 Passei dois dias tentando entender por que o Mural e o Login não funcionavam, sem o console acusar erro nenhum.
@@ -92,10 +88,16 @@ Passei dois dias tentando entender por que o Mural e o Login não funcionavam, s
 
 ### 🚀 Evolução da Arquitetura
 O projeto começou dividido entre pastas de Front e Back, o que tornava a manutenção exaustiva. 
-* **Solução:** Unifiquei o projeto criando uma pasta `static` dentro do backend. Isso facilitou a gestão de rotas e o deploy no Render.
+* **Solução:** Unifiquei o projeto criando uma pasta `static` dentro do backend. Isso facilitou a gestão de rotas e o deploy no Render, embora tenha exigido um ajuste fino no Helmet para reconhecer os novos caminhos de assets.
 
 ### 💡 Nota sobre Segurança de Dados (.env)
 No início, deixei o arquivo `.env` exposto. Foi um erro crítico que serviu de aprendizado definitivo: **A primeira coisa ao iniciar um projeto de backend é configurar o `.gitignore`.** Informação sensível não pode subir para o repositório, nunca.
+
+### 🚀 A Guerra das Rotas (README vs Assets)
+Um dos maiores desafios foi a reestruturação das pastas. Ao mover o `README.md` para a raiz para que o GitHub o reconhecesse, quebrei todos os links de imagens.
+* **O Problema:** O README procurava os assets na raiz, mas eles moravam dentro de `/cs-justice-backend/static/assets/`.
+* **A Solução:** Entender caminhos relativos. Tive que mapear cada `src` para apontar corretamente para dentro da subpasta do backend.
+
 
 ---
 > "Este projeto me ensinou que ser um desenvolvedor Fullstack é muito mais do que escrever código; é saber investigar problemas silenciosos e ter a resiliência de recomeçar uma lógica do zero quando necessário."
