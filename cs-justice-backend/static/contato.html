@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Denúncia - CS: Justiça</title>
+    <title>Contato - CS: Justiça</title>
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -25,12 +26,13 @@
             <div id="login-warning" class="warning-box">
                 <p>⚠️ LOGIN NECESSÁRIO</p>
             </div>
+
             <form id="reportForm" class="form-contato" enctype="multipart/form-data" style="opacity: 0.5; pointer-events: none;">
                 <input type="text" id="reporter" readonly required>
-                <input type="text" id="offender_steam_id" placeholder="Link do Perfil Steam do Infrator" required>
-                <textarea id="mensagem" placeholder="Descreva o ocorrido..." required></textarea>
+                <input type="text" id="offender_steam_id" placeholder="SteamURL ou SteamID64 do Infrator" required>
+                <textarea id="mensagem" placeholder="Descrição do ocorrido..." required></textarea>
                 <input type="file" id="arquivo" name="arquivo" hidden accept="image/*">
-                <label for="arquivo" class="btn-arquivo">ANEXAR PROVA (JPG/PNG) </label>
+                <label for="arquivo" class="btn-arquivo">ANEXAR PROVA</label>
                 <span id="file-name">Nenhum arquivo selecionado</span>
                 <button type="submit" id="btnEnviar" class="send-btn" disabled>LOGUE PARA ENVIAR</button>
             </form>
@@ -73,10 +75,10 @@
 
         const res = await fetch('/api/reports', { method: 'POST', body: formData });
         if (res.ok) {
-            alert('Enviado com sucesso! Aguarde moderação.');
+            alert('Sucesso!');
             window.location.href = '/mural';
         } else {
-            alert('Erro ao enviar. Verifique o servidor.');
+            alert('Erro no envio.');
         }
         btnEnviar.innerText = "ENVIAR DENÚNCIA";
     });
