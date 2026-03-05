@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contato - CS: Justiça</title>
+    <title>Contato e Denúncia - CS: Justiça</title>
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -20,70 +20,146 @@
         </div>
     </nav>
 
+    <header class="main-header">
+        <h1>VIROU ALVO? <span class="orange">NÃO SE CALE.</span></h1>
+        <p>Saiba como denunciar e onde buscar apoio jurídico.</p>
+    </header>
+
     <main class="grid-contato">
+        <section class="canais-oficiais">
+            <h2 class="orange">CANAIS OFICIAIS</h2>
+            <p>Para punição legal e criminal, recorra a estes órgãos:</p>
+            
+            <div class="canal-card">
+                <h3>Delegacia de Crimes Raciais (DECRADI)</h3>
+                <p>Busque a delegacia especializada do seu estado. Utilize a <strong>Delegacia Eletrônica</strong> para registrar o B.O. online.</p>
+            </div>
+
+            <div class="canal-card">
+                <h3>SaferNet Brasil</h3>
+                <p>Referência nacional em denúncias de crimes de ódio na internet. <br>
+                <a href="https://new.safernet.org.br/denuncie" target="_blank">denuncia.safernet.org.br</a></p>
+            </div>
+
+            <div class="canal-card">
+                <h3>Ministério Público Federal</h3>
+                <p>Formalize uma denúncia diretamente ao MPF através da Sala de Atendimento ao Cidadão.</p>
+            </div>
+        </section>
+
         <section class="envio-mural">
             <h2 class="orange">ENVIE PARA O MURAL</h2>
+            <p>Ajude-nos a documentar a toxicidade. O conteúdo será revisado por moderadores.</p>
+
             <div id="login-warning" class="warning-box">
                 <p>⚠️ LOGIN NECESSÁRIO</p>
+                <small>Para evitar spam, você precisa se identificar via Steam para enviar uma denúncia.</small>
             </div>
 
             <form id="reportForm" class="form-contato" enctype="multipart/form-data" style="opacity: 0.5; pointer-events: none;">
-                <input type="text" id="reporter" readonly required>
+                <input type="text" id="reporter" placeholder="Seu Nick (Steam)" readonly required>
                 <input type="text" id="offender_steam_id" placeholder="SteamURL ou SteamID64 do Infrator" required>
-                <textarea id="mensagem" placeholder="Descrição do ocorrido..." required></textarea>
-                <input type="file" id="arquivo" name="arquivo" hidden accept="image/*">
-                <label for="arquivo" class="btn-arquivo">ANEXAR PROVA</label>
-                <span id="file-name">Nenhum arquivo selecionado</span>
+                
+                <div class="input-group">
+                    <label for="mensagem">DESCRIÇÃO DOS FATOS</label>
+                    <textarea id="mensagem" name="mensagem" placeholder="Descreva o ocorrido (Ex: ofensas no chat aos 10 min)..." required></textarea>
+                </div>
+
+                <div class="file-upload-wrapper">
+                    <label for="arquivo" class="btn-arquivo">
+                        <span class="icon">📁</span> ANEXAR PROVA (JPG/PNG)
+                    </label>
+                    <input type="file" id="arquivo" name="arquivo" hidden accept="image/*">
+                    <span id="file-name">Nenhum arquivo selecionado (Máx 25MB)</span>
+                </div>
+
                 <button type="submit" id="btnEnviar" class="send-btn" disabled>LOGUE PARA ENVIAR</button>
             </form>
         </section>
     </main>
 
-<script>
-    const reportForm = document.getElementById('reportForm');
-    const inputArquivo = document.getElementById('arquivo');
-    const labelTexto = document.getElementById('file-name');
-    const btnEnviar = document.getElementById('btnEnviar');
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2026 Projeto Independente de Combate à Toxicidade.</p>
+            <p class="disclaimer">Este site não possui vínculo com a Valve Corporation ou Steam.</p>
+        </div>
+    </footer>
 
-    inputArquivo.addEventListener('change', () => {
-        if (inputArquivo.files[0]) labelTexto.innerText = inputArquivo.files[0].name;
-    });
+    <script>
+        const reportForm = document.getElementById('reportForm');
+        const inputArquivo = document.getElementById('arquivo');
+        const labelTexto = document.getElementById('file-name');
+        const btnEnviar = document.getElementById('btnEnviar');
+        const loginWarning = document.getElementById('login-warning');
 
-    async function checkLoginStatus() {
-        try {
-            const response = await fetch('/api/user-status');
-            const data = await response.json();
-            if (data.logged) {
-                document.getElementById('auth-section').innerHTML = `<span>${data.user.name}</span> <a href="/logout">Sair</a>`;
-                reportForm.style.opacity = "1";
-                reportForm.style.pointerEvents = "auto";
-                document.getElementById('login-warning').style.display = "none";
-                btnEnviar.disabled = false;
-                btnEnviar.innerText = "ENVIAR DENÚNCIA";
-                document.getElementById('reporter').value = data.user.name;
+        
+        inputArquivo.addEventListener('change', () => {
+            if (inputArquivo.files.length > 0) {
+                const arquivo = inputArquivo.files[0];
+                if (arquivo.size / (1024 * 1024) > 25) {
+                    alert("⚠️ Arquivo muito grande! Limite: 25MB.");
+                    inputArquivo.value = "";
+                    labelTexto.innerText = "Arquivo muito grande!";
+                } else {
+                    labelTexto.innerText = "Selecionado: " + arquivo.name;
+                    labelTexto.style.color = "#00ff00";
+                }
             }
-        } catch (err) { console.error(err); }
-    }
+        });
 
-    reportForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        btnEnviar.innerText = "🚀 ENVIANDO...";
-        const formData = new FormData();
-        formData.append('offender_steam_id', document.getElementById('offender_steam_id').value.trim());
-        formData.append('description', document.getElementById('mensagem').value);
-        if (inputArquivo.files[0]) formData.append('arquivo', inputArquivo.files[0]);
-
-        const res = await fetch('/api/reports', { method: 'POST', body: formData });
-        if (res.ok) {
-            alert('Sucesso!');
-            window.location.href = '/mural';
-        } else {
-            alert('Erro no envio.');
+        
+        async function checkLoginStatus() {
+            try {
+                const response = await fetch('/api/user-status');
+                const data = await response.json();
+                if (data.logged) {
+                  
+                    document.getElementById('auth-section').innerHTML = `
+                        <div class="user-info-nav">
+                            <img src="${data.user.avatar}" class="nav-avatar">
+                            <span>${data.user.name}</span>
+                            <a href="/logout" class="logout-link">SAIR</a>
+                        </div>`;
+                    
+                   
+                    reportForm.style.opacity = "1";
+                    reportForm.style.pointerEvents = "auto";
+                    loginWarning.style.display = "none";
+                    btnEnviar.disabled = false;
+                    btnEnviar.innerText = "ENVIAR DENÚNCIA";
+                    document.getElementById('reporter').value = data.user.name;
+                }
+            } catch (err) { console.error("Erro login:", err); }
         }
-        btnEnviar.innerText = "ENVIAR DENÚNCIA";
-    });
 
-    window.onload = checkLoginStatus;
-</script>
+        
+        reportForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            btnEnviar.innerText = "🚀 PROCESSANDO...";
+            btnEnviar.disabled = true;
+
+            const formData = new FormData();
+            formData.append('offender_steam_id', document.getElementById('offender_steam_id').value.trim());
+            formData.append('description', document.getElementById('mensagem').value);
+            if (inputArquivo.files[0]) formData.append('arquivo', inputArquivo.files[0]);
+
+            try {
+                const response = await fetch('/api/reports', { method: 'POST', body: formData });
+                if (response.ok) {
+                    alert('✅ SUCESSO! Enviado para moderação.');
+                    window.location.href = '/mural';
+                } else {
+                    const erro = await response.json();
+                    alert('❌ ERRO: ' + (erro.error || 'Falha no envio.'));
+                }
+            } catch (err) { alert('🚨 ERRO DE CONEXÃO.'); }
+            finally { 
+                btnEnviar.innerText = "ENVIAR DENÚNCIA";
+                btnEnviar.disabled = false;
+            }
+        });
+
+        window.onload = checkLoginStatus;
+    </script>
 </body>
 </html>
