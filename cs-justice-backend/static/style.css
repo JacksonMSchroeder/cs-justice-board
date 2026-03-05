@@ -9,11 +9,11 @@ body {
 
     min-height: 100vh;
     
-    /* Cor + Imagem de fundo fixa para todas as pag */
+   
     background: linear-gradient(rgba(27, 40, 56, 0.9), rgba(27, 40, 56, 0.9)), 
                 url('assets/chatcs.png') no-repeat center center fixed;
     background-size: cover;
-    padding-top: 100px; /* Espaço para a Navbar fixa */
+    padding-top: 100px; 
 }
 
 .orange {
@@ -21,9 +21,8 @@ body {
     font-weight: bold;
 }
 
-/* 
-   2. MENU SUPERIOR
-    */
+
+   
 .navbar {
     display: flex;
     justify-content: space-between;
@@ -38,7 +37,7 @@ body {
     right: 0;
     z-index: 1000;
     backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px); /* Suporte para Safari */
+    -webkit-backdrop-filter: blur(10px); 
 }
 
 .nav-links {
@@ -60,7 +59,7 @@ body {
     color: #ff9d00;
 }
 
- /* loginsteam */
+ 
 .nav-auth {
     display: flex;
     align-items: center;
@@ -148,9 +147,8 @@ body {
     border-left-color: #ff9d00;
 }
 
-/* 
-    (MANIFESTO / LEI / CONTATO)
-    */
+
+    
 .content-box, main {
     max-width: 800px;
     margin: 40px auto;
@@ -164,31 +162,31 @@ body {
 
     
 }
-/* para fake report */
+
 .antifake-body h3 {
     color: #ffffff;
     font-size: 1rem;
     margin-bottom: 10px;
-    border-left: 3px solid #ff9d00; /* Um detalhe laranja para guiar o olhar */
+    border-left: 3px solid #ff9d00; 
     padding-left: 10px;
 }
 
-/* parágrafo laranja  */
+
 .antifake-body .orange {
     margin-top: 15px;
     padding: 10px;
-    background: rgba(255, 157, 0, 0.1); /* Um fundo bem sutil para destacar o aviso final */
+    background: rgba(255, 157, 0, 0.1); 
     border-radius: 4px;
     display: inline-block;
 }
 
 
-/* para o fim da pag lei */
+
 .reflexao {  
     max-width: 800px;        
     margin: 40px auto;          
     padding: 30px;
-    border-top: 1px solid rgba(255, 157, 0, 0.3); /* Uma linha laranja bem fininha */
+    border-top: 1px solid rgba(255, 157, 0, 0.3); 
     font-style: italic; 
     color: #bbb; 
 }
@@ -198,18 +196,16 @@ body {
     letter-spacing: 2px;
 }
 
-/* CONTATO */
-/* Layout em duas colunas para a página de contato */
+
 .grid-contato {
     display: flex;
     gap: 40px;
     max-width: 1000px;
     margin: 40px auto;
-    background: transparent; /* Remove o fundo padrão para usar os cards */
+    background: transparent; 
     border: none;
 }
-/* btn-arquivo */
-/* Container do upload */
+
 .file-upload-wrapper {
     margin: 20px 0;
     display: flex;
@@ -238,7 +234,7 @@ body {
     transform: scale(1.02);
 }
 
-/* Texto que mostra o nome do arquivo */
+
 #file-name {
     font-size: 0.8rem;
     color: #888;
@@ -272,7 +268,6 @@ body {
     text-decoration: none;
 }
 
-/* Estilo do Formulário */
 .form-contato {
     display: flex;
     flex-direction: column;
@@ -301,9 +296,7 @@ body {
     padding: 15px;
 }
 
-/* 
-   MURAL COMPLETO (PÁGINA mural.html - LISTA)
-    */
+
 .console-box {
     background: rgba(0, 0, 0, 0.8);
     border: 1px solid #333;
@@ -326,25 +319,23 @@ body {
 .log-user { color: #ff9d00; font-weight: bold; }
 .log-msg { color: #e0e0e0; }
 
-/* 
-   3 QUADRADOS
-    */
+
 .mural-destaque {
     margin: 50px auto;
     max-width: 1000px;
 
 }
 
-/* container das ações no Mural */
+
 .mural-actions {
     display: flex;
     max-width: 800px;
     margin: 20px auto 30px auto;
     display: flex;
-    justify-content: center; /* alinhar */
+    justify-content: center; 
 }
 
-/* customização btn reporta */
+
 .btn-reportar {
     animation: glow-pulse 2s infinite; 
     display: inline-flex;
@@ -393,13 +384,13 @@ textarea:focus {
     outline: none;
 }
 
-/* efeito para o btn do submite report no mural */
+
 @keyframes glow-pulse {
     0% { box-shadow: 0 0 5px rgba(255, 157, 0, 0.4); }
     50% { box-shadow: 0 0 20px rgba(255, 157, 0, 0.8); }
     100% { box-shadow: 0 0 5px rgba(255, 157, 0, 0.4); }
 }
-/* para as pag do mural */
+
 .paginacao {
     display: flex;
     justify-content: center;
@@ -446,7 +437,7 @@ textarea:focus {
     font-size: 1.1rem;
 }
 
-/* mobile */
+
 @media (max-width: 600px) {
     .navbar { padding: 0 10px; }
     .nav-links { gap: 10px; }
@@ -455,7 +446,7 @@ textarea:focus {
 }
     
     .btn-reportar {
-        width: 100%; /* facilitar o touchscreen */
+        width: 100%; 
         justify-content: center;
     }
 
@@ -464,7 +455,7 @@ textarea:focus {
     display: flex;
     gap: 20px;
     justify-content: center;
-    flex-wrap: wrap; /* ajusta para MOBILE */
+    flex-wrap: wrap; 
     margin-top: 20px;
 }
 
@@ -510,23 +501,22 @@ textarea:focus {
     color: black;
 }
 
-/* 
-   6. ANIMAÇÕES
-    */
+
+    
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Scrollbar do Mural */
+
 .console-box::-webkit-scrollbar { width: 8px; }
 .console-box::-webkit-scrollbar-thumb { background: #ff9d00; }
 
 
-/* NOTA DE RODAPÉ, ALL PAGES */
+
 footer {
-   margin-top: 80px; /* espaço generoso  */
-    padding: 15px 20px; /* para a barra ficar fina */
+   margin-top: 80px; 
+    padding: 15px 20px; 
     background: rgba(10, 15, 25, 0.98);
     border-top: 2px solid #333;
     color: #888;
@@ -590,7 +580,7 @@ footer {
         font-size: 1.5rem;     
     }
 }
-/* PARA OS BLOCO DE DENUNCIA SE MANTER NO LAYOUT DA PAG */
+
 .log-entry {
     padding: 15px;
     margin-bottom: 15px;
@@ -619,8 +609,8 @@ footer {
     margin-top: 10px;
     font-size: 1rem;
 }
-/* 7. ESTILO DE EVIDÊNCIA 
-    */
+
+    
 .log-image {
     margin-top: 15px;
     background: rgba(0, 0, 0, 0.4);
@@ -630,11 +620,11 @@ footer {
     position: relative;
 }
 
-/*  acima da imagem */
+
 .log-image::before {
     content: "> EVIDENCIA_ANEXADA.RAW";
     display: block;
-    color: #ff4500; /*  laranja de erro/alerta */
+    color: #ff4500; 
     font-size: 0.7rem;
     margin-bottom: 8px;
     letter-spacing: 2px;
@@ -646,28 +636,28 @@ footer {
     height: auto;
     display: block;
     border-radius: 2px;
-    /*monitor */
+   
     filter: contrast(1.1) brightness(0.9) grayscale(20%);
     transition: all 0.3s ease;
     cursor: zoom-in;
 }
 
-/*  passar o mouse na prova */
+
 .log-image img:hover {
     filter: contrast(1.2) brightness(1.1) grayscale(0%);
     box-shadow: 0 0 15px rgba(255, 69, 0, 0.3);
 }
 
-/* mobile */
+
 @media (max-width: 768px) {
     .log-image {
         padding: 5px;
     }
 }
-/* para efeito quando tiver carregando */
+
 .loader {
     border: 4px solid #1a1a1a;
-    border-top: 4px solid #ff8c00; /* Laranja do seu ID */
+    border-top: 4px solid #ff8c00; 
     border-radius: 50%;
     width: 40px;
     height: 40px;
@@ -675,13 +665,13 @@ footer {
     margin: 20px auto;
 }
 
-/*  animação de rotação */
+
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
 
-/* fade para os cards aparecerem suavemente */
+
 .log-entry {
     animation: fadeIn 0.5s ease;
 }
@@ -690,11 +680,11 @@ footer {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
-/* CSS PARA INF STEAM */
+
 .avatar-steam {
     width: 45px;
     height: 45px;
-    border-radius: 4px; /* levemente arredondado combina com CS */
+    border-radius: 4px; 
     border: 2px solid #ff9d00;
     object-fit: cover;
     background: #000;
