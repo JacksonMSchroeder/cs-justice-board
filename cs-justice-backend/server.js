@@ -23,7 +23,7 @@ app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-            "img-src": ["'self'", "data:", "https://avatars.steamstatic.com", "https://*.steamstatic.com", "https://*.supabase.co", "https://via.placeholder.com"],
+            "img-src": ["'self'", "data:", "https://avatars.steamstatic.com", "https://*.steamstatic.com", "https://*.supabase.co", "https://via.placeholder.com", "https://*.steamcommunity.com"],
             "script-src": ["'self'", "'unsafe-inline'"],
             "connect-src": ["'self'", "https://*.supabase.co"]
         },
@@ -61,6 +61,7 @@ app.use(passport.session());
 
 app.use(express.static(path.join(__dirname, 'static')));
 
+
 app.get('/auth/steam', passport.authenticate('steam'));
 app.get('/auth/steam/return', passport.authenticate('steam', { failureRedirect: '/' }), (req, res) => {
     res.redirect('/contato'); 
@@ -85,6 +86,7 @@ app.get('/api/user-status', (req, res) => {
     }
 });
 
+
 app.post('/api/reports', upload.single('arquivo'), async (req, res) => {
     if (!req.isAuthenticated()) {
         return res.status(401).json({ error: "Faça login via Steam para enviar." });
@@ -92,52 +94,59 @@ app.post('/api/reports', upload.single('arquivo'), async (req, res) => {
 
     try {
         let { offender_steam_id, description } = req.body;
+        let finalSteamId = offender_steam_id;
 
-        if (offender_steam_id.includes('steamcommunity.com')) {
-            const urlPath = offender_steam_id.replace(/\/$/, ""); 
+        
+        if (finalSteamId.includes('steamcommunity.com')) {
+            const urlPath = finalSteamId.replace(/\/$/, ""); 
             const lastPart = urlPath.split('/').pop();
 
             if (urlPath.includes('/profiles/')) {
-                offender_steam_id = lastPart;
+                finalSteamId = lastPart;
             } 
             else if (urlPath.includes('/id/')) {
                 const resolveRes = await axios.get(`https://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/`, {
                     params: { key: process.env.STEAM_API_KEY, vanityurl: lastPart }
                 });
                 if (resolveRes.data.response.success === 1) {
-                    offender_steam_id = resolveRes.data.response.steamid;
+                    finalSteamId = resolveRes.data.response.steamid;
                 }
             }
         }
 
-        let offenderName = "Não Identificado";
-        let offenderAvatar = "https://via.placeholder.com/150";
-        let vacStatus = "Limpa";
+        
+        let offenderName = `ID:${finalSteamId}`; 
+        let offenderAvatar = "https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg";
+        let vacStatus = "Sincronizando...";
 
         try {
-            const [playerRes, banRes] = await Promise.all([
-                axios.get(`https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/`, {
-                    params: { key: process.env.STEAM_API_KEY, steamids: offender_steam_id }
-                }),
-                axios.get(`https://api.steampowered.com/ISteamUser/GetPlayerBans/v1/`, {
-                    params: { key: process.env.STEAM_API_KEY, steamids: offender_steam_id }
-                })
-            ]);
+            
+            const playerRes = await axios.get(`https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/`, {
+                params: { key: process.env.STEAM_API_KEY, steamids: finalSteamId }
+            });
 
-            const player = playerRes.data.response.players[0];
-            if (player) {
-                offenderName = player.personaname;
-                offenderAvatar = player.avatarfull;
+            const playerData = playerRes.data.response.players[0];
+            if (playerData) {
+                
+                offenderName = playerData.personaname || `ID:${finalSteamId}`;
+                offenderAvatar = playerData.avatarfull || playerData.avatar;
+                console.log(`✅ SUCESSO: Nick capturado da Steam -> ${offenderName}`);
             }
+
+            
+            const banRes = await axios.get(`https://api.steampowered.com/ISteamUser/GetPlayerBans/v1/`, {
+                params: { key: process.env.STEAM_API_KEY, steamids: finalSteamId }
+            });
 
             const banInfo = banRes.data.players[0];
             if (banInfo) {
-                vacStatus = banInfo.VACBanned ? "Banido (VAC)" : (banInfo.CommunityBanned ? "Banido (Comunidade)" : "Limpa");
+                vacStatus = banInfo.VACBanned ? "BANIDO (VAC)" : (banInfo.CommunityBanned ? "BANIDO (COMUNIDADE)" : "LIMPA");
             }
-        } catch (err) {
-            console.error("Erro Steam API:", err.message);
+        } catch (steamErr) {
+            console.error("❌ ERRO STEAM API:", steamErr.message);
         }
 
+        
         let fileUrl = null;
         if (req.file) {
             const fileName = `proof-${Date.now()}${path.extname(req.file.originalname)}`;
@@ -150,13 +159,15 @@ app.post('/api/reports', upload.single('arquivo'), async (req, res) => {
             fileUrl = publicUrl.publicUrl;
         }
 
+        
         const { error: dbError } = await supabase.from('reports').insert([{
             reporter: req.user.displayName,
-            offender_steam_id: offender_steam_id,
+            offender_steam_id: String(finalSteamId),
+            offender_name: String(offenderName),
             description: description,
             status: 'PENDENTE',
             approved: false,
-            avatarsteam: offenderAvatar,
+            avatarsteam: offenderAvatar, 
             vac_status: vacStatus,
             evidence_url: fileUrl
         }]);
@@ -165,10 +176,11 @@ app.post('/api/reports', upload.single('arquivo'), async (req, res) => {
         res.status(200).json({ success: true });
 
     } catch (err) {
-        console.error("Erro Geral:", err);
+        console.error("❌ ERRO GERAL NO SERVER:", err);
         res.status(500).json({ error: "Erro interno no servidor." });
     }
 });
+
 
 app.get('/api/reports', async (req, res) => {
     const { data, error } = await supabase
@@ -181,9 +193,10 @@ app.get('/api/reports', async (req, res) => {
     res.json(data);
 });
 
+
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'static', 'index.html')));
 app.get('/mural', (req, res) => res.sendFile(path.join(__dirname, 'static', 'mural.html')));
 app.get('/lei', (req, res) => res.sendFile(path.join(__dirname, 'static', 'lei.html')));
 app.get('/contato', (req, res) => res.sendFile(path.join(__dirname, 'static', 'contato.html')));
 
-app.listen(PORT, () => console.log(`🚀 Porta ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 SERVIDOR RODANDO NA PORTA ${PORT}`));

@@ -3,24 +3,19 @@
 ## 🔗 Link do Projeto
 🚀 **Confira o projeto rodando aqui:** [https://cs-justice-board.onrender.com/](https://cs-justice-board.onrender.com/)
 
-<img src="static/assets/allpagescs.gif" width="100%">
+<img src="https://raw.githubusercontent.com/JacksonMSchroeder/cs-justice-board/main/cs-justice-backend/static/assets/allpagescs.gif" width="100%">
 
 ---
 
 ## 🔐 Sistema de Login via Valve (Steam OpenID)
 
-<img src="static/assets/nolog.png" width="48%"> <img src="static/assets/yeslog.png" width="48%">
-
-*Interface antes e depois da autenticação via Steam.*
+<img src="https://raw.githubusercontent.com/JacksonMSchroeder/cs-justice-board/main/cs-justice-backend/static/assets/nolog.png" width="48%"> <img src="https://raw.githubusercontent.com/JacksonMSchroeder/cs-justice-board/main/cs-justice-backend/static/assets/yeslog.png" width="48%">
 
 ---
 
 ## ⚡ Integração com Supabase & Moderação
 
-<img src="static/assets/supacs.png" width="100%">
-
-O projeto utiliza o **Supabase (PostgreSQL)** para gestão de dados e o **Supabase Storage** para armazenamento seguro de evidências, contando com um sistema de moderação onde as denúncias só aparecem no mural após aprovação administrativa.
-
+<img src="https://raw.githubusercontent.com/JacksonMSchroeder/cs-justice-board/main/cs-justice-backend/static/assets/supacs.png" width="100%">
 ---
 
 ---
@@ -99,14 +94,22 @@ No início, deixei o arquivo `.env` exposto. Foi um erro crítico que serviu de 
 
 ### 🧠 Desafio no Uso de IA e Gestao de Tempo
 Durante o desenvolvimento, utilizei ferramentas de IA generativa com o objetivo de agilizar a criacao de rotas GET e POST e focar no estudo das APIs. No entanto, essa escolha trouxe aprendizados criticos:
-
 Perda de Controle Logico: A IA frequentemente alterava estruturas nao solicitadas, errava nomenclaturas de variaveis e confundia a comunicacao entre o Backend e o Banco de Dados.
-
 O Custo do Atalho: O esforço para depurar (debug) os erros gerados pela IA acabou superando o tempo que seria gasto na escrita manual do codigo.
-
 Conclusao Técnica: Entendi que para lidar com integrações complexas e segurança de dados, a escrita manual e insubstituivel. A IA passou a ser utilizada apenas como ferramenta de consulta teorica, garantindo que a logica de negocio fosse 100% controlada e compreendida por mim.
 
+### 🤯 O Pesadelo da Documentação (README.md)
+Um dos desafios mais inesperados — e que consumiu um tempo desproporcional — não foi uma lógica complexa de API, mas a simples exibição de imagens e gifs no README.
 
+* **O Conflito de Arquitetura** Ao unificar o projeto movendo o frontend para uma pasta static, a hierarquia de pastas mudou, gerando uma confusão extrema nos caminhos relativos dentro do GitHub.
+
+* **O "Fator Helmet":** O CSP rigoroso do Helmet.js bloqueava assets, criando falsos diagnósticos onde eu achava que o erro era o caminho da imagem, quando na verdade era a política de segurança.
+
+* **A Armadilha do Preview:** O Ctrl + Shift + V do VS Code lê o sistema de arquivos local. Assim, as imagens apareciam para mim, mas quebravam no GitHub, que exige caminhos baseados na raiz do repositório remoto.
+
+* **O Bug "Fantasma":** Testei exaustivamente sintaxes Markdown, tags HTML e caminhos absolutos. Cada pequena alteração na lógica do site parecia "quebrar" o README novamente devido ao conflito do renderizador da plataforma.
+
+* **A Lição:** Por mais "bobo" que um erro pareça, ele vira um gargalo se você não dominar como o GitHub enxerga a raiz do repositório. A solução veio ao isolar a lógica e usar links diretos. A resiliência de não desistir após 10 commits de ajuste foi o maior aprendizado: não existe problema que não dê para solucionar codando!
 
 ---
 > "Este projeto me ensinou que ser um desenvolvedor Fullstack é muito mais do que escrever código; é saber investigar problemas silenciosos e ter a resiliência de recomeçar uma lógica do zero quando necessário."

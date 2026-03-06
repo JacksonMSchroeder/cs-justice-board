@@ -49,27 +49,48 @@
             const res = await fetch('/api/reports');
             const reports = await res.json();
             
-            if (reports.length === 0) {
-                container.innerHTML = '<p style="text-align:center; color:#666;">Nenhum registro aprovado ainda.</p>';
+            if (!reports || reports.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:#666; padding: 50px;">Nenhum registro aprovado ainda.</p>';
                 return;
             }
 
             container.innerHTML = reports.map(item => `
                 <div class="log-entry">
                     <div class="user-info-mural">
-                        <img src="${item.avatarsteam || 'https://via.placeholder.com/50'}" class="avatar-steam">
+                        <img src="${item.avatarsteam}" class="avatar-steam" 
+                             onerror="this.src='https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg'">
+                        
                         <div>
-                            <strong class="orange">ALVO: ${item.offender_steam_id}</strong>
-                            <div class="log-status">STATUS: ${item.vac_status}</div>
+                            <strong class="orange" style="font-size: 1.1rem; display: block;">
+                                ${item.offender_name || 'USUÁRIO NÃO IDENTIFICADO'}
+                            </strong>
+                            <code style="color: #555; font-size: 0.7rem;">STEAM_ID: ${item.offender_steam_id}</code>
+                            <div class="log-status" style="margin-top: 4px; font-weight: bold; font-size: 0.65rem; color: #00ff00;">
+                                STATUS: ${item.vac_status || 'DOCUMENTADO'}
+                            </div>
                         </div>
                     </div>
-                    <div class="log-desc"><p>${item.description}</p></div>
-                    ${item.evidence_url ? `<div class="log-image"><img src="${item.evidence_url}"></div>` : ''}
-                    <div class="log-footer">REGISTRADO EM: ${new Date(item.created_at).toLocaleDateString('pt-BR')}</div>
+
+                    <div class="log-desc">
+                        <p style="color: #ccc; line-height: 1.4; margin-top: 15px;">
+                            ${item.description || 'Nenhuma descrição fornecida.'}
+                        </p>
+                    </div>
+
+                    ${item.evidence_url ? `
+                        <div class="log-image" style="margin-top: 15px; border: 1px solid #333; border-radius: 4px; overflow: hidden;">
+                            <img src="${item.evidence_url}" style="max-width: 100%; display: block; filter: grayscale(0.3) contrast(1.1);">
+                        </div>
+                    ` : ''}
+
+                    <div class="log-footer" style="margin-top: 15px; border-top: 1px dashed #333; pt-10px; font-size: 0.65rem; color: #666;">
+                        ARQUIVO GERADO EM: ${new Date(item.created_at).toLocaleString('pt-BR')}
+                    </div>
                 </div>
             `).join('');
         } catch (err) {
-            container.innerHTML = '<p style="color:red; text-align:center;">Erro ao carregar mural.</p>';
+            console.error(err);
+            container.innerHTML = '<p style="color:red; text-align:center; padding: 50px;">Falha crítica ao sincronizar com o terminal central.</p>';
         }
     }
     
@@ -85,7 +106,9 @@
                         <a href="/logout" style="color: #ff4444; font-size: 0.7rem; text-decoration: none; margin-left: 8px;">SAIR</a>
                     </div>`;
             }
-        } catch (e) { console.error(e); }
+        } catch (e) { 
+            console.error("Erro na autenticação:", e); 
+        }
     }
 
     window.onload = () => { 

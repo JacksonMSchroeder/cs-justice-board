@@ -75,18 +75,19 @@
 
     <p>O CS2 aspira ser o maior e-sport do mundo, mas não pode ostentar esse título enquanto for um porto seguro para o ódio. A comunidade brasileira, uma das maiores e mais apaixonadas do mundo, exige que a Valve trate o racismo com a mesma seriedade com que trata os <em>cheaters</em>.</p>
 
-    <p><strong>O jogo evoluiu. É hora da postura da Valve evoluir também.</strong></p>Por amarmos este jogo que não aceitaremos que ele seja um refúgio para criminosos.</strong> </p>
-    
-</main>
+    <p><strong>O jogo evoluiu. É hora da postura da Valve evoluir também.</strong></p>
+        <p><strong>Por amarmos este jogo, não aceitaremos que ele seja um refúgio para criminosos.</strong></p>
+    </main>
 
-    <footer>
+    <footer> 
         <div class="footer-content">
             <p>&copy; 2026 Projeto Independente de Combate à Toxicidade.</p>
             <p class="disclaimer">Este site não possui vínculo com a Valve Corporation ou Steam.</p>
         </div>
     </footer>
 
-<script>
+    <script>
+    
     async function checkUserStatus() {
         try {
             const res = await fetch('/api/user-status');
@@ -99,36 +100,60 @@
                         <a href="/logout" style="color: #ff4444; font-size: 0.7rem; text-decoration: none; margin-left: 8px;">SAIR</a>
                     </div>`;
             }
-        } catch (err) { console.error(err); }
+        } catch (err) { 
+            console.error("Erro ao verificar status de login:", err); 
+        }
     }
 
+    
     async function carregarDestaques() {
         const container = document.getElementById('recent-reports-container');
         try {
             const res = await fetch('/api/reports');
             const dados = await res.json();
-            if (dados.length === 0) {
-                container.innerHTML = '<p style="color:#666;">[ NENHUM REGISTRO APROVADO ]</p>';
+
+            if (!dados || dados.length === 0) {
+                container.innerHTML = '<p style="color:#666; padding: 20px;">[ NENHUM REGISTRO APROVADO ]</p>';
                 return;
             }
+
             container.innerHTML = '';
+            
+           
             dados.slice(0, 3).forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'card-log';
+                
+                
                 card.innerHTML = `
-                    <div style="display:flex; align-items:center; gap:12px;">
-                        <img src="${item.avatarsteam}" class="avatar-steam" style="width: 40px; height: 40px;">
-                        <div>
-                            <strong style="color:#ff9d00; font-size:0.7rem;">ID: ${item.offender_steam_id}</strong><br>
-                            <span style="color:#00ff00; font-size:0.6rem; font-weight:bold;">ESTADO: DOCUMENTADO</span>
+                    <div style="display:flex; align-items:center; gap:12px; width: 100%;">
+                        <img src="${item.avatarsteam}" class="avatar-steam" 
+                             style="width: 45px; height: 45px; border: 1px solid #333; border-radius: 4px;" 
+                             onerror="this.src='https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg'">
+                        
+                        <div style="flex: 1; min-width: 0;">
+                            <strong style="color:#ff9d00; font-size:0.9rem; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                ${item.offender_name || 'NICKNAME OCULTO'}
+                            </strong>
+                            <div style="margin-top: 2px;">
+                                <code style="color:#666; font-size:0.6rem; display: block;">ID: ${item.offender_steam_id}</code>
+                                <span style="color:#00ff00; font-size:0.55rem; font-weight:bold; letter-spacing: 0.5px;">ESTADO: DOCUMENTADO</span>
+                            </div>
                         </div>
                     </div>`;
                 container.appendChild(card);
             });
-        } catch (e) { container.innerHTML = '<p style="color:red;">Falha na central.</p>'; }
+        } catch (e) { 
+            console.error("Erro ao carregar registros:", e);
+            container.innerHTML = '<p style="color:red; padding: 20px;">Falha na conexão com a central.</p>'; 
+        }
     }
 
-    window.onload = () => { checkUserStatus(); carregarDestaques(); };
+    
+    window.onload = () => { 
+        checkUserStatus(); 
+        carregarDestaques(); 
+    };
 </script>
 </body>
 </html>
