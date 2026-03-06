@@ -3,7 +3,7 @@
 ## 🔗 Link do Projeto
 🚀 **Confira o projeto rodando aqui:** [https://cs-justice-board.onrender.com/](https://cs-justice-board.onrender.com/)
 
-![Demonstração das Páginas](./static/assets/allpagescs.gif)
+![Demonstração das Páginas](./backend/static/assets/allpagescs.gif)
 
 ---
 
@@ -11,12 +11,12 @@
 
 | Antes do Login | Após Autenticação |
 | :---: | :---: |
-| ![Sem Login](./static/assets/nolog.png) | ![Com Login](./static/assets/yeslog.png) |
+| ![Sem Login](./backend/static/assets/nolog.png) | ![Com Login](./backend/static/assets/yeslog.png) |
 
 
 
 ### ⚡ Integração com Supabase & Moderação
-![Painel Supabase](./static/assets/supacs.png)
+![Painel Supabase](./backend/static/assets/supacs.png)
 *O projeto utiliza o **Supabase (PostgreSQL)** para gestão de dados e o **Supabase Storage** para armazenamento seguro de evidências, contando com um sistema de moderação onde as denúncias só aparecem no mural após aprovação administrativa.*
 
 ---
