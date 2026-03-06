@@ -1,23 +1,27 @@
-# ⚖️ CS: Justiça - Sistema de Documentação e Combate à Violência Virtual
+# ⚖️ CS: Justice - Sistema de Documentação e Combate à Violência Virtual
 
 ## 🔗 Link do Projeto
 🚀 **Confira o projeto rodando aqui:** [https://cs-justice-board.onrender.com/](https://cs-justice-board.onrender.com/)
 
-![Demonstração das Páginas](./backend/static/assets/allpagescs.gif)
+<img src="static/assets/allpagescs.gif" width="100%">
 
 ---
 
 ## 🔐 Sistema de Login via Valve (Steam OpenID)
 
-| Antes do Login | Após Autenticação |
-| :---: | :---: |
-| ![Sem Login](./backend/static/assets/nolog.png) | ![Com Login](./backend/static/assets/yeslog.png) |
+<img src="static/assets/nolog.png" width="48%"> <img src="static/assets/yeslog.png" width="48%">
 
+*Interface antes e depois da autenticação via Steam.*
 
+---
 
-### ⚡ Integração com Supabase & Moderação
-![Painel Supabase](./backend/static/assets/supacs.png)
-*O projeto utiliza o **Supabase (PostgreSQL)** para gestão de dados e o **Supabase Storage** para armazenamento seguro de evidências, contando com um sistema de moderação onde as denúncias só aparecem no mural após aprovação administrativa.*
+## ⚡ Integração com Supabase & Moderação
+
+<img src="static/assets/supacs.png" width="100%">
+
+O projeto utiliza o **Supabase (PostgreSQL)** para gestão de dados e o **Supabase Storage** para armazenamento seguro de evidências, contando com um sistema de moderação onde as denúncias só aparecem no mural após aprovação administrativa.
+
+---
 
 ---
 
