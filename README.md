@@ -93,5 +93,16 @@ O projeto começou dividido entre pastas de Front e Back, o que tornava a manute
 ### 💡 Nota sobre Segurança de Dados (.env)
 No início, deixei o arquivo `.env` exposto. Foi um erro crítico que serviu de aprendizado definitivo: **A primeira coisa ao iniciar um projeto de backend é configurar o `.gitignore`.** Informação sensível não pode subir para o repositório, nunca.
 
+### 🧠 Desafio no Uso de IA e Gestao de Tempo
+Durante o desenvolvimento, utilizei ferramentas de IA generativa com o objetivo de agilizar a criacao de rotas GET e POST e focar no estudo das APIs. No entanto, essa escolha trouxe aprendizados criticos:
+
+Perda de Controle Logico: A IA frequentemente alterava estruturas nao solicitadas, errava nomenclaturas de variaveis e confundia a comunicacao entre o Backend e o Banco de Dados.
+
+O Custo do Atalho: O esforço para depurar (debug) os erros gerados pela IA acabou superando o tempo que seria gasto na escrita manual do codigo.
+
+Conclusao Técnica: Entendi que para lidar com integrações complexas e segurança de dados, a escrita manual e insubstituivel. A IA passou a ser utilizada apenas como ferramenta de consulta teorica, garantindo que a logica de negocio fosse 100% controlada e compreendida por mim.
+
+
+
 ---
 > "Este projeto me ensinou que ser um desenvolvedor Fullstack é muito mais do que escrever código; é saber investigar problemas silenciosos e ter a resiliência de recomeçar uma lógica do zero quando necessário."

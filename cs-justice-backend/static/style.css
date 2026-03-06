@@ -697,16 +697,36 @@ footer {
     margin-bottom: 12px;
 }
 video {
-    max-height: 450px; /* evita que video verticais ocupem a tela toda */
+    max-height: 450px; 
     outline: none;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
 }
 
 audio::-webkit-media-controls-panel {
-    background-color: #ff8c00; /* da um toque laranja  */
+    background-color: #ff8c00; 
 }
 video, img {
-    max-width: 100%;  /* videos e cards n vazarem */
+    max-width: 100%; 
     display: block;
     margin: 10px 0;
+}
+#login-warning {
+    background-color: rgba(255, 0, 0, 0.15); 
+    border: 1px solid rgba(255, 0, 0, 0.4);   
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    text-align: center;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.1);
+}
+#login-warning p {
+    color: #ff4d4d; 
+    font-weight: bold;
+    margin: 0;
+}
+
+#login-warning small {
+    color: #ccc; 
+    display: block;
+    margin-top: 5px;
 }
