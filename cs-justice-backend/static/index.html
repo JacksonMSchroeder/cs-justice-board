@@ -88,7 +88,7 @@
         const recentContainer = document.getElementById('recent-reports-container');
 
         try {
-            // 1. Verificar Login (Persistente)
+           
             const resStatus = await fetch('/api/user-status');
             const status = await resStatus.json();
             
@@ -101,7 +101,7 @@
                     </div>`;
             }
 
-            // 2. Carregar apenas os 3 últimos (Destaques)
+            
             const resReports = await fetch('/api/reports');
             const reports = await resReports.json();
 
@@ -110,20 +110,26 @@
                 return;
             }
 
-            recentContainer.innerHTML = '';
+           recentContainer.innerHTML = '';
             reports.slice(0, 3).forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'card-log';
                 card.innerHTML = `
-                    <div style="display:flex; align-items:center; gap:12px; width: 100%;">
+                    <div style="display:flex; align-items:center; gap:12px; width: 100%; position: relative;">
                         <img src="${item.avatarsteam || 'https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg'}" 
                              style="width: 45px; height: 45px; border: 1px solid #ff9d00; border-radius: 4px; object-fit: cover;" 
                              onerror="this.src='https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg'">
-                        <div style="flex: 1; min-width: 0;">
+                        <div style="flex: 1; min-width: 0; z-index: 10;">
                             <strong style="color:#ff9d00; font-size:0.9rem; display: block; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                 ${item.offender_name}
                             </strong>
-                            <code style="color:#666; font-size:0.6rem;">ID: ${item.offender_steam_id}</code>
+                            <code style="color:#666; font-size:0.6rem; display: block; margin-bottom: 2px;">ID: ${item.offender_steam_id}</code>
+                            
+                            <a href="https://steamcommunity.com/profiles/${item.offender_steam_id}" 
+                               target="_blank" 
+                               style="color:#00ff00; font-size:0.6rem; text-decoration:none; text-transform: uppercase; font-weight: bold; cursor: pointer; display: inline-block; position: relative;">
+                               [ VER PERFIL ]
+                            </a>
                         </div>
                     </div>`;
                 recentContainer.appendChild(card);
