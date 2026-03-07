@@ -2,6 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mural - CS: Justiça</title>
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;700&display=swap" rel="stylesheet">
@@ -24,8 +25,7 @@
     <header class="main-header">
         <h1>MURAL DA <span class="orange">VERGONHA</span></h1>
         <p>Jogadores documentados por comportamentos tóxicos e criminosos após moderação. <BR>
-         Todos os arquivos enviados passam por uma avaliação antes de serem publicados. <br>
-        no mural. <br>
+         Todos os arquivos enviados passam por uma avaliação antes de serem publicados no mural. <br>
          São aceitos formatos de vídeo e áudio. </p>
     </header>
 
@@ -43,78 +43,67 @@
     </footer>
 
 <script>
-    async function carregarMural() {
-        const container = document.getElementById('mural-container');
+    async function inicializarMural() {
+        const authSection = document.getElementById('auth-section');
+        const muralContainer = document.getElementById('mural-container');
+
         try {
-            const res = await fetch('/api/reports');
-            const reports = await res.json();
+        
+            const resStatus = await fetch('/api/user-status');
+            const status = await resStatus.json();
             
+            if (status.logged && authSection) {
+                authSection.innerHTML = `
+                    <div class="user-info-nav" style="display:flex; align-items:center; gap:10px;">
+                        <img src="${status.user.avatar}" class="nav-avatar" style="width:35px; height:35px; border-radius:4px; border:1px solid #ff9d00;">
+                        <span style="color:#fff;">${status.user.name}</span>
+                        <a href="/logout" style="color:#ff4444; font-size:0.7rem; text-decoration:none;">[ SAIR ]</a>
+                    </div>`;
+            }
+
+          
+            const resReports = await fetch('/api/reports');
+            const reports = await resReports.json();
+
             if (!reports || reports.length === 0) {
-                container.innerHTML = '<p style="text-align:center; color:#666; padding: 50px;">Nenhum registro aprovado ainda.</p>';
+                muralContainer.innerHTML = '<p style="text-align:center; color:#666; padding:50px;">MURAL LIMPO.</p>';
                 return;
             }
 
-            container.innerHTML = reports.map(item => `
-                <div class="log-entry">
-                    <div class="user-info-mural">
-                        <img src="${item.avatarsteam}" class="avatar-steam" 
+            muralContainer.innerHTML = reports.map(item => `
+                <div class="log-entry" style="border: 1px solid #222; margin-bottom: 25px; padding: 20px; background: #0b0b0b; border-radius: 4px;">
+                    <div style="display:flex; align-items:center; gap:15px;">
+                        <img src="${item.avatarsteam || 'https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg'}" 
+                             style="width:60px; height:60px; border:1px solid #ff9d00; border-radius:4px; object-fit: cover;" 
                              onerror="this.src='https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg'">
-                        
                         <div>
-                            <strong class="orange" style="font-size: 1.1rem; display: block;">
-                                ${item.offender_name || 'USUÁRIO NÃO IDENTIFICADO'}
-                            </strong>
+                            <h3 style="margin:0; color:#ff9d00; text-transform: uppercase; font-size: 1.2rem;">${item.offender_name}</h3>
                             <code style="color: #555; font-size: 0.7rem;">STEAM_ID: ${item.offender_steam_id}</code>
-                            <div class="log-status" style="margin-top: 4px; font-weight: bold; font-size: 0.65rem; color: #00ff00;">
+                            <div style="margin-top: 5px; font-weight: bold; font-size: 0.65rem; color: #00ff00;">
                                 STATUS: ${item.vac_status || 'DOCUMENTADO'}
                             </div>
                         </div>
                     </div>
-
-                    <div class="log-desc">
-                        <p style="color: #ccc; line-height: 1.4; margin-top: 15px;">
-                            ${item.description || 'Nenhuma descrição fornecida.'}
-                        </p>
+                    
+                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #1a1a1a;">
+                        <p style="color: #ccc; line-height: 1.5; font-size: 0.95rem;">${item.description || 'Sem descrição.'}</p>
                     </div>
 
                     ${item.evidence_url ? `
-                        <div class="log-image" style="margin-top: 15px; border: 1px solid #333; border-radius: 4px; overflow: hidden;">
-                            <img src="${item.evidence_url}" style="max-width: 100%; display: block; filter: grayscale(0.3) contrast(1.1);">
+                        <div style="margin-top: 15px; border: 1px solid #333; overflow: hidden; border-radius: 2px;">
+                            <img src="${item.evidence_url}" style="max-width: 100%; display: block; opacity: 0.8;">
                         </div>
                     ` : ''}
 
-                    <div class="log-footer" style="margin-top: 15px; border-top: 1px dashed #333; pt-10px; font-size: 0.65rem; color: #666;">
-                        ARQUIVO GERADO EM: ${new Date(item.created_at).toLocaleString('pt-BR')}
+                    <div style="margin-top: 15px; font-size: 0.6rem; color: #444; text-align: right; text-transform: uppercase;">
+                        Registro Oficial: ${new Date(item.created_at).toLocaleString('pt-BR')}
                     </div>
                 </div>
             `).join('');
-        } catch (err) {
-            console.error(err);
-            container.innerHTML = '<p style="color:red; text-align:center; padding: 50px;">Falha crítica ao sincronizar com o terminal central.</p>';
-        }
-    }
-    
-    async function checkAuth() {
-        try {
-            const res = await fetch('/api/user-status');
-            const data = await res.json();
-            if (data.logged) {
-                document.getElementById('auth-section').innerHTML = `
-                    <div style="display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.6); padding: 5px 12px; border-radius: 4px; border: 1px solid #ff9d00;">
-                        <img src="${data.user.avatar}" style="width: 25px; height: 25px; border-radius: 2px;">
-                        <span style="color: #fff; font-size: 0.85rem; font-weight: bold;">${data.user.name}</span>
-                        <a href="/logout" style="color: #ff4444; font-size: 0.7rem; text-decoration: none; margin-left: 8px;">SAIR</a>
-                    </div>`;
-            }
-        } catch (e) { 
-            console.error("Erro na autenticação:", e); 
-        }
-    }
 
-    window.onload = () => { 
-        checkAuth(); 
-        carregarMural(); 
-    };
+        } catch (e) { console.error("Erro Mural:", e); }
+    }
+    window.onload = inicializarMural;
 </script>
 </body>
 </html>
