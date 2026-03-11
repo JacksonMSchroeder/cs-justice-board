@@ -37,7 +37,7 @@ O projeto foi estruturado com base em pilares reais de justiça e tecnologia:
 * **Monitoramento de Status (VAC):** Integração em tempo real com os servidores da Valve para verificar banimentos ativos nos perfis reportados.
 * **Gestão de Provas em Nuvem:** Implementação de upload de imagens diretamente para o **Supabase Storage**, vinculando evidências visuais de forma segura aos registros do banco.
 * **Autenticação Steam OpenID:** Sistema de login que utiliza a identidade oficial da Valve para garantir que apenas usuários reais possam realizar denúncias.
-
+* **Navegação Direta e UX (Steam Protocol):** Implementei uma lógica de atalhos dinâmicos no Mural e na Index para facilitar a verificação dos perfis reportados. O sistema gera automaticamente dois tipos de acesso: o [ PERFIL WEB ], que abre a página da comunidade em uma nova aba do navegador, e o [ APP STEAM ]
 ---
 
 ## 🛠️ Stack Tecnológica (Fullstack)
@@ -46,6 +46,7 @@ O projeto foi estruturado com base em pilares reais de justiça e tecnologia:
 * **Banco de Dados & Storage:** **Supabase** (PostgreSQL) para persistência de dados e armazenamento de mídia.
 * **Integrações:** API Web da Steam (ISteamUser) para coleta de metadados e verificação de conta.
 * **Deploy:** Hospedagem via Render com fluxo de deploy contínuo.
+* **Web Scraping:** Cheerio para extração de metadados em tempo real quando a API oficial apresenta limitações de cache ou privacidade.
 
 ---
 
@@ -59,9 +60,18 @@ O projeto foi estruturado com base em pilares reais de justiça e tecnologia:
 ## 🖥️ Design Responsivo
 Interface desenvolvida com foco em **Mobile First**, garantindo total funcionalidade em Smartphones e Desktops.
 
+##💡 Evolução da Estratégia: Do "Bot" ao Scraping Cirúrgico
+* **Durante o estudo da API da valve:** cogitei inicialmente criar uma conta fantasma (bot) na Steam para realizar o login e buscar informações que a API oficial por vezes mascara em perfis privados.
+* **O Método Descartado (Canhão para matar mosca):** Manter uma instância de um bot logado 24/7 apenas para ler nomes de usuários seria uma complexidade desnecessária. Seria como usar um canhão para matar uma mosca: alto consumo de recursos, necessidade de lidar com autenticação de dois fatores (Steam Guard) e risco de banimento da conta bot.
+* **A Virada de Chave com Cheerio:** Decidi descartar o bot e implementar o Cheerio. Com ele, o próprio servidor faz uma requisição HTTP rápida e "escaneia" a página pública do perfil em milissegundos.
+* **Resultado:** Ganhei agilidade no código, eliminei a dependência de uma conta externa e garanti que o sistema seja leve e escalável. Menos código, mais eficiência.
+
+
 **Desenvolvedor:** Jackson Miranda Schroeder  
 **Foco:** Análise e Desenvolvimento de Sistemas / Fullstack Development  
 **Objetivo:** Contribuição social através da tecnologia e democratização do acesso à justiça digital.
+
+
 
 
 
@@ -100,16 +110,14 @@ Conclusao Técnica: Entendi que para lidar com integrações complexas e seguran
 
 ### 🤯 O Pesadelo da Documentação (README.md)
 Um dos desafios mais inesperados — e que consumiu um tempo desproporcional — não foi uma lógica complexa de API, mas a simples exibição de imagens e gifs no README.
-
 * **O Conflito de Arquitetura** Ao unificar o projeto movendo o frontend para uma pasta static, a hierarquia de pastas mudou, gerando uma confusão extrema nos caminhos relativos dentro do GitHub.
-
 * **O "Fator Helmet":** O CSP rigoroso do Helmet.js bloqueava assets, criando falsos diagnósticos onde eu achava que o erro era o caminho da imagem, quando na verdade era a política de segurança.
-
 * **A Armadilha do Preview:** O Ctrl + Shift + V do VS Code lê o sistema de arquivos local. Assim, as imagens apareciam para mim, mas quebravam no GitHub, que exige caminhos baseados na raiz do repositório remoto.
-
 * **O Bug "Fantasma":** Testei exaustivamente sintaxes Markdown, tags HTML e caminhos absolutos. Cada pequena alteração na lógica do site parecia "quebrar" o README novamente devido ao conflito do renderizador da plataforma.
-
 * **A Lição:** Por mais "bobo" que um erro pareça, ele vira um gargalo se você não dominar como o GitHub enxerga a raiz do repositório. A solução veio ao isolar a lógica e usar links diretos. A resiliência de não desistir após 10 commits de ajuste foi o maior aprendizado: não existe problema que não dê para solucionar codando!
 
+### 💡 Extração Híbrida de Dados (API + Scraping)
+* **Implementei uma lógica de redundância usando Cheerio:** Se a API da Steam demorar para atualizar o nickname de um infrator, o sistema faz um "scraping" rápido na página pública do perfil para garantir que o nome registrado seja o mais atual possível.
+* **O "Bug do Referrer" (Fotos Desaparecidas):** Enfrentei um desafio onde os avatares da Steam apareciam quebrados devido às políticas de segurança da Valve. Resolvi implementando a diretiva <meta name="referrer" content="no-referrer">, permitindo que o navegador carregue assets da Steam sem ser bloqueado por restrições de origem.
 ---
 > "Este projeto me ensinou que ser um desenvolvedor Fullstack é muito mais do que escrever código; é saber investigar problemas silenciosos e ter a resiliência de recomeçar uma lógica do zero quando necessário."
