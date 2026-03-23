@@ -2,6 +2,7 @@
 
 ## 🔗 Link do Projeto
 🚀 **Confira o projeto rodando aqui:** [https://cs-justice-board.onrender.com/](https://cs-justice-board.onrender.com/)
+ ### O projeto pode estar com o server(mural) desativado por questões de inatividade e plano gratuito (Supabase + Render)
 
 <img src="https://raw.githubusercontent.com/JacksonMSchroeder/cs-justice-board/main/cs-justice-backend/static/assets/allpagescs.gif" width="100%">
 
